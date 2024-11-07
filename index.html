@@ -2,6 +2,21 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <script>
+      // Register service worker
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((registration) => {
+              console.log("ServiceWorker registration successful");
+            })
+            .catch((err) => {
+              console.log("ServiceWorker registration failed: ", err);
+            });
+        });
+      }
+    </script>
     <script src="./modules/camera_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/control_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/drawing_utils.js" crossorigin="anonymous"></script>
@@ -9,11 +24,16 @@
     <script type="module">
       const videoElement = document.getElementsByClassName("input_video")[0];
       const canvasElement = document.getElementsByClassName("output_canvas")[0];
+
+      canvasElement.width = window.innerWidth;
+      canvasElement.height = window.innerHeight;
       const canvasCtx = canvasElement.getContext("2d");
 
       function onResults(results) {
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        canvasCtx.scale(-1, 1);
+        canvasCtx.translate(-canvasElement.width, 0);
         canvasCtx.drawImage(
           results.image,
           0,
@@ -73,8 +93,11 @@
 
   <body>
     <div class="container">
-      <canvas class="output_canvas" width="1280px" height="720px"></canvas>
-      <video class="input_video" style="visibility: hidden; width: 0px"></video>
+      <canvas class="output_canvas" width="auto" height="auto"></canvas>
+      <video
+        class="input_video"
+        style="visibility: hidden; width: 100%; height: 100%"
+      ></video>
     </div>
   </body>
 </html>
