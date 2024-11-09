@@ -28,9 +28,7 @@ const LANDMARKS = {
 
 const HAND_STYLES = {
     DEFAULT: (landmark) => {
-        // console.log(landmark);
-
-        let radius = Math.max(30 - ((landmark.value.z + 1) * 28), 0.5);
+        let radius = Math.max(30 - ((landmark.value.z + 1) * 28), 0.2);
         return { color: "red", lineWidth: 4, radius, visibilityMin: .5, fillColor: "red" }
     }
 }

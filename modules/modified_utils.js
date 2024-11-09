@@ -18,7 +18,7 @@ const drawSpecificLandmarks = (drawCtx, allLandmarks, specificLandmarks) => {
 
 
             if (f = f.value, void 0 !== f && (void 0 === f.visibility || f.visibility > style.visibilityMin)) {
-                if (specificLandmarks.includes(i)) {
+                if (specificLandmarks && (specificLandmarks.length === 0 || specificLandmarks.includes(i))) {
 
                     drawCtx.fillStyle = y(style.fillColor, {
                         index: e, from: f
