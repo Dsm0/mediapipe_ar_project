@@ -17,11 +17,14 @@
         });
       }
     </script>
+
     <script src="./modules/camera_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/control_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/hands.js" crossorigin="anonymous"></script>
     <script type="module">
+      // https://developer.chrome.com/blog/io24-webassembly-webgpu-2
+
       const videoElement = document.getElementsByClassName("input_video")[0];
       const canvasElement = document.getElementsByClassName("output_canvas")[0];
 
@@ -29,11 +32,35 @@
       canvasElement.height = window.innerHeight;
       const canvasCtx = canvasElement.getContext("2d");
 
+      let currentDeviceIndex = 0;
+      let videoDevices = [];
+
+      async function switchVideoDevice() {
+        if (videoDevices.length === 0) {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          videoDevices = devices.filter(
+            (device) => device.kind === "videoinput"
+          );
+        }
+        console.log(videoDevices);
+
+        if (videoDevices.length > 1) {
+          currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
+          await camera.stop();
+          camera.h.facingMode = undefined; // Clear facingMode constraint
+          camera.h.deviceId = videoDevices[0].deviceId; // Set new device
+          camera.start();
+        }
+      }
+      window.switchVideoDevice = switchVideoDevice;
+
+      videoElement.addEventListener("tap", switchVideoDevice);
+
       function onResults(results) {
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-        canvasCtx.scale(-1, 1);
-        canvasCtx.translate(-canvasElement.width, 0);
+        // canvasCtx.scale(-1, 1);
+        // canvasCtx.translate(-canvasElement.width, 0);
         canvasCtx.drawImage(
           results.image,
           0,
@@ -86,12 +113,14 @@
         },
         width: 1280,
         height: 720,
+        facingMode: "environment",
       });
       camera.start();
+      console.log(camera.h);
     </script>
   </head>
 
-  <body>
+  <body style="margin: 0px; padding: 0px; overflow-y: hidden">
     <div class="container">
       <canvas class="output_canvas" width="auto" height="auto"></canvas>
       <video
