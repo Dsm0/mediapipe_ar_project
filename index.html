@@ -175,9 +175,29 @@
                 HAND_STYLES
               );
               updateFaustParams(window.faustNode, landmarks);
+
+              // Display landmark values in top left
+              canvasCtx.save();
+              canvasCtx.fillStyle = "white";
+              canvasCtx.font = "12px monospace";
+              canvasCtx.textAlign = "left";
+
+              landmarks.forEach((landmark, index) => {
+                const landmarkName =
+                  Object.keys(LANDMARKS).find(
+                    (key) => LANDMARKS[key] === index
+                  ) || "UNKNOWN";
+                const text = `${landmarkName}: x=${landmark.x.toFixed(
+                  3
+                )}, y=${landmark.y.toFixed(3)}, z=${landmark.z.toFixed(3)}`;
+                canvasCtx.fillText(text, 10, 60 + index * 15);
+              });
+
+              canvasCtx.restore();
             }
           }
         }
+
         canvasCtx.restore();
       }
 
