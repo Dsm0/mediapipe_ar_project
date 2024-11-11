@@ -2,6 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <title>Hello WebXR!</title>
 
     <style>
       body {
@@ -76,19 +81,38 @@
       }
     </script>
 
+    <!-- three.js -->
+    <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+
     <script src="./modules/camera_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/control_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="./modules/hands.js" crossorigin="anonymous"></script>
     <script src="./modules/draw_hand_style.js" crossorigin="anonymous"></script>
     <script src="./modules/misc_utils.js" crossorigin="anonymous"></script>
+
     <script
       src="./modules/hand_faust_params.js"
       crossorigin="anonymous"
     ></script>
     <script src="./modules/modified_utils.js" crossorigin="anonymous"></script>
     <script src="./index.js"></script>
+    <!-- <script type="module" src="./modules/start_xr.js"></script> -->
     <script type="module">
+      // TODO:
+
+      // // implement
+      // https://developers.google.com/ar/develop/webxr/hello-webxr
+
+      // rewrite functions to use one canvas context,
+      // ie. make sure to clear the canvas before drawing
+
+      // massage z-index scaling
+
+      // add pose detection
+      // https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer/web_js
+
+      // // investigate this:
       // https://developer.chrome.com/blog/io24-webassembly-webgpu-2
 
       const attachFaustNode = async () => {
@@ -108,6 +132,23 @@
 
       let currentDeviceIndex = 0;
       let videoDevices = [];
+
+      function showLandmarkValues(canvasCtx, landmarks) {
+        canvasCtx.save();
+        canvasCtx.fillStyle = "white";
+        canvasCtx.font = "12px monospace";
+        canvasCtx.textAlign = "left";
+
+        landmarks.forEach((landmark, index) => {
+          const landmarkName = Object.keys(LANDMARKS)[index];
+          const text = `${landmarkName}: x=${landmark.x.toFixed(
+            3
+          )}, y=${landmark.y.toFixed(3)}, z=${landmark.z.toFixed(11)}`;
+          canvasCtx.fillText(text, 10, 60 + index * 15);
+        });
+
+        canvasCtx.restore();
+      }
 
       async function switchVideoDevice() {
         if (videoDevices.length === 0) {
@@ -148,8 +189,6 @@
           canvasElement.height
         );
 
-        // console.log("ahhh");
-
         if (results.multiHandLandmarks) {
           let i = 0;
           if (results.multiHandLandmarks.length === 0) {
@@ -174,30 +213,14 @@
                 ],
                 HAND_STYLES
               );
+
               updateFaustParams(window.faustNode, landmarks);
 
-              // Display landmark values in top left
-              canvasCtx.save();
-              canvasCtx.fillStyle = "white";
-              canvasCtx.font = "12px monospace";
-              canvasCtx.textAlign = "left";
-
-              landmarks.forEach((landmark, index) => {
-                const landmarkName =
-                  Object.keys(LANDMARKS).find(
-                    (key) => LANDMARKS[key] === index
-                  ) || "UNKNOWN";
-                const text = `${landmarkName}: x=${landmark.x.toFixed(
-                  3
-                )}, y=${landmark.y.toFixed(3)}, z=${landmark.z.toFixed(3)}`;
-                canvasCtx.fillText(text, 10, 60 + index * 15);
-              });
-
-              canvasCtx.restore();
+              // Display landmark coordinates
+              showLandmarkValues(canvasCtx, landmarks);
             }
           }
         }
-
         canvasCtx.restore();
       }
 
@@ -234,18 +257,34 @@
         facingMode: "environment",
       });
       camera.start();
-      console.log(camera.h);
+      // console.log(camera.h);
 
       await attachFaustNode();
+      console.log(initXR);
     </script>
   </head>
 
   <body style="margin: 0px; padding: 0px; overflow-y: hidden">
+    <button id="button-xr" style="position: absolute; top: 10px; left: 10px">
+      Start Hello WebXR
+    </button>
     <div class="container">
-      <canvas class="output_canvas" width="auto" height="auto"></canvas>
+      <canvas
+        class="output_canvas"
+        width="auto"
+        height="auto"
+        style="z-index: 5"
+      ></canvas>
+      <canvas
+        class="output_canvas_xr"
+        width="auto"
+        height="auto"
+        style="z-index: 10"
+      ></canvas>
+
       <video class="input_video" width="200" height="200"></video>
     </div>
-    <main>
+    <main id="main">
       <div id="div-faust-ui"></div>
     </main>
   </body>

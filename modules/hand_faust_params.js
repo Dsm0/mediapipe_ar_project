@@ -4,13 +4,20 @@ function getScaledValue(value, sourceRangeMin, sourceRangeMax, targetRangeMin, t
     return (value - sourceRangeMin) * targetRange / sourceRange + targetRangeMin;
 }
 
+let minZValue = Infinity;
+let maxZValue = -Infinity;
+
 
 const HAND_FAUST_PARAMS = {
     // DEFAULT: -1,
     [LANDMARKS.WRIST]: (faustNode, value) => {
 
-        let gain = (value.x).clamp(0, 0.7);
-        // console.log(value.x, gain);
+        minZValue = Math.min(minZValue, value.z);
+        maxZValue = Math.max(maxZValue, value.z);
+
+        let adjustedValue = (Math.abs(value.z) * 1e6)
+
+        let gain = adjustedValue.clamp(0, 0.7);
 
         if (faustNode) {
             faustNode.setParamValue("/untitled1/gain", gain)
@@ -51,7 +58,7 @@ const HAND_FAUST_PARAMS = {
     [LANDMARKS.RING_FINGER_TIP]: (faustNode, value) => {
 
         let gain = (value.y).clamp(0, 1);
-        console.log(value.x, gain);
+        // console.log(value.x, gain);
 
         if (faustNode) {
             faustNode.setParamValue("/untitled1/gain_8ve_partial", gain)
