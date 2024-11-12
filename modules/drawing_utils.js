@@ -122,9 +122,34 @@ function drawConnectors(scene, landmarks, connections, options) {
     });
 }
 
+/**
+ * Draws a single point in 3D space
+ */
+function drawPoint(scene, point, options) {
+    if (!point) return;
+
+    options = mergeWithDefaults(options);
+
+    const geometry = new THREE.SphereGeometry(options.radius / 100, 32, 32);
+    const material = new THREE.MeshBasicMaterial({
+        color: options.color,
+        depthTest: false
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    // Convert from normalized coordinates to Three.js coordinates
+    mesh.position.set(
+        (point.x - 0.5) * 2,
+        -(point.y - 0.5) * 2,
+        point.z || 0
+    );
+    scene.add(mesh);
+}
+
 // Export functions to global scope
 if (typeof window !== 'undefined') {
     window.createScene = createScene;
     window.drawLandmarks = drawLandmarks;
     window.drawConnectors = drawConnectors;
+    window.drawPoint = drawPoint;
 }

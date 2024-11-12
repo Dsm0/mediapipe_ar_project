@@ -27,6 +27,8 @@
         z-index: 100;
         width: auto;
         height: auto;
+        width: 100px;
+        height: 100px;
       }
 
       #debug-text {
@@ -75,6 +77,12 @@
       const videoTexture = new THREE.VideoTexture(videoElement);
       let aspectRatio = 16 / 9;
 
+      const scaler = {
+        x: 1,
+        y: 1,
+        z: 1,
+      };
+
       const planeGeometry = new THREE.PlaneGeometry(10, 10);
       const planeMaterial = new THREE.MeshBasicMaterial({
         map: videoTexture,
@@ -83,6 +91,8 @@
       const plane = new THREE.Mesh(planeGeometry, planeMaterial);
       // Position the plane behind other elements
       plane.position.z = -8;
+
+      plane.scale.set(scaler.x, scaler.y, scaler.z);
       // Scale the plane to fill the view
       // plane.scale.set(1.5, 1.5, 1.5);
       plane.renderOrder = -1;
@@ -176,13 +186,18 @@
         if (results.multiHandLandmarks) {
           updateFaustParamsForLandmarks(window.faustNode);
           showDebugText(results);
+          let i = 0;
           for (const landmarks of results.multiHandLandmarks) {
             // Transform landmarks to match plane coordinates
             const transformedLandmarks = landmarks.map((landmark) => ({
-              x: landmark.x, // Adjust for aspect ratio
-              y: landmark.y, // Flip Y coordinates and scale
-              z: landmark.z || 0,
+              x: (landmark.x - 0.5) * scaler.x + 0.5,
+              y: (landmark.y - 0.5) * scaler.y + 0.5,
+              z: landmark.z * scaler.z || 0,
             }));
+
+            // if (i === LANDMARKS.INDEX_FINGER_TIP) {
+            console.log(landmarks[i].x, transformedLandmarks[i].x);
+            // }
 
             drawConnectors(scene, transformedLandmarks, HAND_CONNECTIONS, {
               color: 0x00ff00,
@@ -192,9 +207,20 @@
             drawLandmarks(scene, transformedLandmarks, {
               color: 0xffffff,
               radius: 4,
+              scaler: scaler,
             });
 
+            drawPoint(
+              scene,
+              { x: 0.5 * scaler.x, y: 0.5 * scaler.y, z: 0 * scaler.z },
+              {
+                color: 0xff0000,
+                radius: 3,
+                scaler: scaler,
+              }
+            );
             updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
+            ++i;
           }
         }
       }
@@ -220,11 +246,11 @@
         height: window.innerHeight,
         facingMode: "environment",
       });
-      videoElement.style.visibility = "hidden";
+      // videoElement.style.visibility = "hidden";
       canvasCamera.start();
       console.log(canvasCamera);
 
-      aspectRatio = canvasCamera.h.width / canvasCamera.h.height;
+      // aspectRatio = canvasCamera.h.width / canvasCamera.h.height;
 
       console.log();
 
