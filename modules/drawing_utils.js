@@ -57,7 +57,10 @@ function drawLandmarks(scene, landmarks, options) {
     options = mergeWithDefaults(options);
 
     const geometry = new THREE.SphereGeometry(options.radius / 100, 32, 32);
-    const material = new THREE.MeshBasicMaterial({ color: options.color });
+    const material = new THREE.MeshBasicMaterial({
+        color: options.color,
+        depthTest: false
+    });
 
     landmarks.forEach((landmark, index) => {
         if (!landmark || (landmark.visibility && landmark.visibility <= options.visibilityMin)) {
@@ -85,7 +88,8 @@ function drawConnectors(scene, landmarks, connections, options) {
 
     const material = new THREE.LineBasicMaterial({
         color: options.color,
-        linewidth: options.lineWidth
+        linewidth: options.lineWidth,
+        depthTest: false
     });
 
     connections.forEach((connection, index) => {

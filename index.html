@@ -23,10 +23,10 @@
         position: fixed;
         right: 10px;
         bottom: 10px;
-        width: 200px;
-        height: 150px;
         border: 2px solid white;
         z-index: 100;
+        width: auto;
+        height: auto;
       }
 
       #debug-text {
@@ -71,12 +71,31 @@
       videoElement.classList.add("video-feed");
       document.body.appendChild(videoElement);
 
+      // Add these lines to create video texture and plane
+      const videoTexture = new THREE.VideoTexture(videoElement);
+      let aspectRatio = 16 / 9;
+
+      const planeGeometry = new THREE.PlaneGeometry(10, 10);
+      const planeMaterial = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide,
+      });
+      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      // Position the plane behind other elements
+      plane.position.z = -8;
+      // Scale the plane to fill the view
+      // plane.scale.set(1.5, 1.5, 1.5);
+      plane.renderOrder = -1;
+
       // Initialize Three.js scene
       const container = document.getElementById("container");
       const threeScene = createScene(container);
       scene = threeScene.scene;
       camera = threeScene.camera;
       renderer = threeScene.renderer;
+
+      // Add the plane to the scene
+      scene.add(plane);
 
       const attachFaustNode = async () => {
         await faustNode.then((faustNode) => {
@@ -148,26 +167,34 @@
       }
 
       function onResults(results) {
-        // Clear previous frame's objects
-        while (scene.children.length > 0) {
-          scene.remove(scene.children[0]);
-        }
+        // Modify the scene clearing to preserve the video plane
+        const objectsToRemove = scene.children.filter(
+          (child) => child !== plane
+        );
+        objectsToRemove.forEach((object) => scene.remove(object));
 
         if (results.multiHandLandmarks) {
           updateFaustParamsForLandmarks(window.faustNode);
           showDebugText(results);
           for (const landmarks of results.multiHandLandmarks) {
-            drawConnectors(scene, landmarks, HAND_CONNECTIONS, {
+            // Transform landmarks to match plane coordinates
+            const transformedLandmarks = landmarks.map((landmark) => ({
+              x: landmark.x, // Adjust for aspect ratio
+              y: landmark.y, // Flip Y coordinates and scale
+              z: landmark.z || 0,
+            }));
+
+            drawConnectors(scene, transformedLandmarks, HAND_CONNECTIONS, {
               color: 0x00ff00,
               lineWidth: 2,
             });
 
-            drawLandmarks(scene, landmarks, {
+            drawLandmarks(scene, transformedLandmarks, {
               color: 0xffffff,
               radius: 4,
             });
 
-            updateFaustParams(window.faustNode, landmarks);
+            updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
           }
         }
       }
@@ -189,10 +216,18 @@
         onFrame: async () => {
           await hands.send({ image: videoElement });
         },
-        width: 1280,
-        height: 720,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        facingMode: "environment",
       });
+      videoElement.style.visibility = "hidden";
       canvasCamera.start();
+      console.log(canvasCamera);
+
+      aspectRatio = canvasCamera.h.width / canvasCamera.h.height;
+
+      console.log();
+
       await attachFaustNode();
     </script>
   </head>
