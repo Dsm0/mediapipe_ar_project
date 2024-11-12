@@ -8,32 +8,27 @@
 
 // Default drawing styles
 const DEFAULT_STYLES = {
-    color: 'white',
+    color: 0xffffff,
     lineWidth: 4,
     radius: 6,
     visibilityMin: 0.5
 };
 
 /**
- * Creates an iterator for an array
+ * Creates a Three.js scene, camera and renderer
  */
-function createArrayIterator(array) {
-    let index = 0;
-    return function () {
-        return index < array.length ?
-            { done: false, value: array[index++] } :
-            { done: true };
-    };
-}
+function createScene(container) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
-/**
- * Gets an iterator for an iterable object
- */
-function getIterator(obj) {
-    const iterator = typeof Symbol !== 'undefined' &&
-        Symbol.iterator &&
-        obj[Symbol.iterator];
-    return iterator ? iterator.call(obj) : { next: createArrayIterator(obj) };
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    camera.position.z = 2;
+
+    return { scene, camera, renderer };
 }
 
 /**
@@ -54,166 +49,78 @@ function evaluateValue(value, context) {
 }
 
 /**
- * Clamps a value between min and max
+ * Draws landmarks in 3D space
  */
-function clamp(value, min, max) {
-    return Math.max(
-        Math.min(min, max),
-        Math.min(Math.max(min, max), value)
-    );
-}
-
-/**
- * Draws landmarks on a canvas
- */
-function drawLandmarks(ctx, landmarks, options) {
+function drawLandmarks(scene, landmarks, options) {
     if (!landmarks) return;
 
     options = mergeWithDefaults(options);
-    ctx.save();
 
-    const canvas = ctx.canvas;
-    let index = 0;
+    const geometry = new THREE.SphereGeometry(options.radius / 100, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: options.color });
 
-    const iterator = getIterator(landmarks);
-    for (let item = iterator.next(); !item.done; item = iterator.next()) {
-        const landmark = item.value;
-
-        if (!landmark ||
-            (landmark.visibility && landmark.visibility <= options.visibilityMin)) {
-            continue;
+    landmarks.forEach((landmark, index) => {
+        if (!landmark || (landmark.visibility && landmark.visibility <= options.visibilityMin)) {
+            return;
         }
 
-        // Set styles
-        ctx.fillStyle = evaluateValue(options.fillColor, {
-            index,
-            from: landmark
-        });
-        ctx.strokeStyle = evaluateValue(options.color, {
-            index,
-            from: landmark
-        });
-        ctx.lineWidth = evaluateValue(options.lineWidth, {
-            index,
-            from: landmark
-        });
-
-        // Draw landmark point
-        const path = new Path2D();
-        path.arc(
-            landmark.x * canvas.width,
-            landmark.y * canvas.height,
-            evaluateValue(options.radius, {
-                index,
-                from: landmark
-            }),
-            0,
-            2 * Math.PI
+        const mesh = new THREE.Mesh(geometry, material);
+        // Convert from normalized coordinates to Three.js coordinates
+        mesh.position.set(
+            (landmark.x - 0.5) * 2,
+            -(landmark.y - 0.5) * 2,
+            landmark.z || 0
         );
-
-        ctx.fill(path);
-        ctx.stroke(path);
-        index++;
-    }
-
-    ctx.restore();
+        scene.add(mesh);
+    });
 }
 
 /**
- * Draws connectors between landmarks
+ * Draws connectors between landmarks in 3D space
  */
-function drawConnectors(ctx, landmarks, connections, options) {
+function drawConnectors(scene, landmarks, connections, options) {
     if (!landmarks || !connections) return;
 
     options = mergeWithDefaults(options);
-    ctx.save();
 
-    const canvas = ctx.canvas;
-    let index = 0;
+    const material = new THREE.LineBasicMaterial({
+        color: options.color,
+        linewidth: options.lineWidth
+    });
 
-    const iterator = getIterator(connections);
-    for (let item = iterator.next(); !item.done; item = iterator.next()) {
-        const connection = item.value;
-        ctx.beginPath();
-
+    connections.forEach((connection, index) => {
         const from = landmarks[connection[0]];
         const to = landmarks[connection[1]];
 
-        if (!from || !to) continue;
+        if (!from || !to) return;
 
         const fromVisible = !from.visibility || from.visibility > options.visibilityMin;
         const toVisible = !to.visibility || to.visibility > options.visibilityMin;
 
         if (fromVisible && toVisible) {
-            ctx.strokeStyle = evaluateValue(options.color, {
-                index,
-                from,
-                to
-            });
-            ctx.lineWidth = evaluateValue(options.lineWidth, {
-                index,
-                from,
-                to
-            });
+            const points = [
+                new THREE.Vector3(
+                    (from.x - 0.5) * 2,
+                    -(from.y - 0.5) * 2,
+                    from.z || 0
+                ),
+                new THREE.Vector3(
+                    (to.x - 0.5) * 2,
+                    -(to.y - 0.5) * 2,
+                    to.z || 0
+                )
+            ];
 
-            ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
-            ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
         }
-
-        index++;
-        ctx.stroke();
-    }
-
-    ctx.restore();
-}
-
-/**
- * Draws a rectangle on the canvas
- */
-function drawRectangle(ctx, rect, options) {
-    options = mergeWithDefaults(options);
-    ctx.save();
-
-    const canvas = ctx.canvas;
-
-    ctx.beginPath();
-    ctx.lineWidth = evaluateValue(options.lineWidth, {});
-    ctx.strokeStyle = evaluateValue(options.color, {});
-    ctx.fillStyle = evaluateValue(options.fillColor, {});
-
-    // Transform and draw rectangle
-    ctx.translate(rect.xCenter * canvas.width, rect.yCenter * canvas.height);
-    ctx.rotate(rect.rotation * Math.PI / 180);
-    ctx.rect(
-        -rect.width / 2 * canvas.width,
-        -rect.height / 2 * canvas.height,
-        rect.width * canvas.width,
-        rect.height * canvas.height
-    );
-    ctx.translate(-rect.xCenter * canvas.width, -rect.yCenter * canvas.height);
-
-    ctx.stroke();
-    ctx.fill();
-    ctx.restore();
-}
-
-/**
- * Linear interpolation between values
- */
-function lerp(value, min1, max1, min2, max2) {
-    return clamp(
-        min2 * (1 - (value - min1) / (max1 - min1)) +
-        max2 * (1 - (max1 - value) / (max1 - min1)),
-        min2,
-        max2
-    );
+    });
 }
 
 // Export functions to global scope
 if (typeof window !== 'undefined') {
-    window.clamp = clamp;
+    window.createScene = createScene;
     window.drawLandmarks = drawLandmarks;
     window.drawConnectors = drawConnectors;
-    window.drawRectangle = drawRectangle;
-    window.lerp = lerp;
 }

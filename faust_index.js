@@ -2,11 +2,11 @@
 const FAUST_DSP_VOICES = 0;
 
 /**
- * @typedef {import("./faustwasm").FaustAudioWorkletNode} FaustAudioWorkletNode
- * @typedef {import("./faustwasm").FaustDspMeta} FaustDspMeta
- * @typedef {import("./faustwasm").FaustUIDescriptor} FaustUIDescriptor
- * @typedef {import("./faustwasm").FaustUIGroup} FaustUIGroup
- * @typedef {import("./faustwasm").FaustUIItem} FaustUIItem
+ * @typedef {import("./faustwasm/index.js").FaustAudioWorkletNode} FaustAudioWorkletNode
+ * @typedef {import("./faustwasm/index.js").FaustDspMeta} FaustDspMeta
+ * @typedef {import("./faustwasm/index.js").FaustUIDescriptor} FaustUIDescriptor
+ * @typedef {import("./faustwasm/index.js").FaustUIGroup} FaustUIGroup
+ * @typedef {import("./faustwasm/index.js").FaustUIItem} FaustUIItem
  */
 
 /**

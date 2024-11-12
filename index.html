@@ -4,226 +4,58 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+      content="width=device-width, user-scalable=0, initial-scale=1.0"
     />
     <title>Hello WebXR!</title>
 
     <style>
       body {
-        color: #b0b0b0;
+        margin: 0;
+        overflow: hidden;
         background-color: #1f1f1f;
-        display: flex;
-        top: 0;
-        left: 0;
+      }
+      #container {
+        position: fixed;
         width: 100%;
         height: 100%;
-        margin: 0;
-        position: absolute;
+      }
+      .video-feed {
+        position: fixed;
+        right: 10px;
+        bottom: 10px;
+        width: 200px;
+        height: 150px;
+        border: 2px solid white;
+        z-index: 100;
       }
 
-      main {
-        margin: 20px;
-        display: flex;
-        flex-direction: column;
-        flex: 1 1 100%;
-      }
-
-      main span {
-        position: relative;
-        display: flex;
-      }
-
-      main span[hidden] {
-        display: none;
-      }
-
-      main span span {
-        margin: 0px 10px;
-        flex: 1;
-      }
-
-      main span select {
-        flex: 2;
-      }
-
-      #dsp-switch {
-        margin: 20px auto;
-      }
-
-      #button-dsp {
+      #debug-text {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        color: white;
+        font-family: monospace;
+        z-index: 100;
+        white-space: pre;
+        font-size: 12px;
+        background-color: rgba(0, 0, 0, 0.5);
         padding: 10px;
-      }
-
-      #div-faust-ui {
-        flex: 1 1 auto;
-        display: flex;
-        position: relative;
-        flex-direction: column;
-        color: black;
+        border-radius: 5px;
       }
     </style>
-    <link rel="stylesheet" href="./faust-ui/index.css" />
-
-    <script>
-      // Register service worker
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("./service-worker.js")
-            .then((registration) => {
-              console.log("ServiceWorker registration successful");
-            })
-            .catch((err) => {
-              console.log("ServiceWorker registration failed: ", err);
-            });
-        });
-      } else {
-      }
-    </script>
 
     <!-- three.js -->
     <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
 
-    <script src="./modules/camera_utils.js" crossorigin="anonymous"></script>
-    <!-- <script src="./modules/control_utils.js" crossorigin="anonymous"></script> -->
-    <script src="./modules/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="./modules/hands.js" crossorigin="anonymous"></script>
-    <script src="./modules/draw_hand_style.js" crossorigin="anonymous"></script>
-    <script src="./modules/misc_utils.js" crossorigin="anonymous"></script>
+    <script src="./modules/camera_utils.js"></script>
+    <script src="./modules/drawing_utils.js"></script>
+    <script src="./modules/hands.js"></script>
+    <script src="./modules/draw_hand_style.js"></script>
+    <script src="./modules/hand_faust_params.js"></script>
+    <script src="./modules/misc_utils.js"></script>
+    <script src="./faust_index.js"></script>
 
-    <script
-      src="./modules/hand_faust_params.js"
-      crossorigin="anonymous"
-    ></script>
-    <script src="./modules/modified_utils.js" crossorigin="anonymous"></script>
-    <script src="./index.js"></script>
-    <!-- <script type="module" src="./modules/start_xr.js"></script> -->
     <script type="module">
-      // TODO:
-
-      // // implement
-      // https://developers.google.com/ar/develop/webxr/hello-webxr
-
-      // rewrite functions to use one canvas context,
-      // ie. make sure to clear the canvas before drawing
-
-      // massage z-index scaling
-
-      // add pose detection
-      // https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer/web_js
-
-      // // investigate this:
-      // https://developer.chrome.com/blog/io24-webassembly-webgpu-2
-
-      const attachFaustNode = async () => {
-        await faustNode.then((faustNode) => {
-          console.log("faustNode", faustNode.setParamValue);
-          window.faustNode = faustNode;
-          faustNode.setParamValue("/untitled1/gate", 1.0);
-        });
-      };
-
-      const videoElement = document.getElementsByClassName("input_video")[0];
-      const canvasElement = document.getElementsByClassName("output_canvas")[0];
-
-      canvasElement.width = window.innerWidth;
-      canvasElement.height = window.innerHeight;
-      const canvasCtx = canvasElement.getContext("2d");
-
-      let currentDeviceIndex = 0;
-      let videoDevices = [];
-
-      function showLandmarkValues(canvasCtx, landmarks) {
-        canvasCtx.save();
-        canvasCtx.fillStyle = "white";
-        canvasCtx.font = "12px monospace";
-        canvasCtx.textAlign = "left";
-
-        landmarks.forEach((landmark, index) => {
-          const landmarkName = Object.keys(LANDMARKS)[index];
-          const text = `${landmarkName}: x=${landmark.x.toFixed(
-            3
-          )}, y=${landmark.y.toFixed(3)}, z=${landmark.z.toFixed(11)}`;
-          canvasCtx.fillText(text, 10, 60 + index * 15);
-        });
-
-        canvasCtx.restore();
-      }
-
-      async function switchVideoDevice() {
-        if (videoDevices.length === 0) {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          videoDevices = devices.filter(
-            (device) => device.kind === "videoinput"
-          );
-        }
-        console.log(videoDevices);
-
-        if (videoDevices.length > 1) {
-          currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
-          await camera.stop();
-          camera.h.facingMode = undefined; // Clear facingMode constraint
-          camera.h.deviceId = videoDevices[0].deviceId; // Set new device
-          camera.start();
-        }
-      }
-      window.switchVideoDevice = switchVideoDevice;
-
-      videoElement.addEventListener("tap", switchVideoDevice);
-
-      function onResults(results) {
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-        // not currently working
-        if (camera.h.facingMode === "user") {
-          canvasCtx.scale(-1, 1);
-          canvasCtx.translate(-canvasElement.width, 0);
-        }
-
-        canvasCtx.drawImage(
-          results.image,
-          0,
-          0,
-          canvasElement.width,
-          canvasElement.height
-        );
-
-        if (results.multiHandLandmarks) {
-          let i = 0;
-          if (results.multiHandLandmarks.length === 0) {
-            updateFaustParamsNoLandmarks(window.faustNode);
-          } else {
-            updateFaustParamsForLandmarks(window.faustNode);
-            for (const landmarks of results.multiHandLandmarks) {
-              drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-                color: "#00FF00",
-                lineWidth: 1,
-              });
-
-              drawSpecificLandmarks(
-                canvasCtx,
-                landmarks,
-                [
-                  // LANDMARKS.THUMB_TIP,
-                  // LANDMARKS.INDEX_FINGER_TIP,
-                  // LANDMARKS.MIDDLE_FINGER_TIP,
-                  // LANDMARKS.RING_FINGER_TIP,
-                  // LANDMARKS.PINKY_TIP,
-                ],
-                HAND_STYLES
-              );
-
-              updateFaustParams(window.faustNode, landmarks);
-
-              // Display landmark coordinates
-              showLandmarkValues(canvasCtx, landmarks);
-            }
-          }
-        }
-        canvasCtx.restore();
-      }
-
       // all taken from https://cdn.jsdelivr.net/npm/@mediapipe/hands
 
       // needs to find:
@@ -234,58 +66,138 @@
 
       // https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands_solution_packed_assets.data
 
+      let scene, camera, renderer;
+      const videoElement = document.createElement("video");
+      videoElement.classList.add("video-feed");
+      document.body.appendChild(videoElement);
+
+      // Initialize Three.js scene
+      const container = document.getElementById("container");
+      const threeScene = createScene(container);
+      scene = threeScene.scene;
+      camera = threeScene.camera;
+      renderer = threeScene.renderer;
+
+      const attachFaustNode = async () => {
+        await faustNode.then((faustNode) => {
+          console.log("faustNode", faustNode.setParamValue);
+          window.faustNode = faustNode;
+          faustNode.setParamValue("/untitled1/gate", 1.0);
+          console.log("faustNode attached");
+        });
+      };
+
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      const debugDiv = document.createElement("div");
+      debugDiv.id = "debug-text";
+      document.body.appendChild(debugDiv);
+
+      const showDebugText = (results) => {
+        let debugText = "";
+        if (results.multiHandLandmarks.length === 0) {
+          debugText = "No hands detected";
+          updateFaustParamsNoLandmarks(window.faustNode);
+        } else {
+          debugText = results.multiHandLandmarks
+            .map((landmarks, index) => formatLandmarks(landmarks, index))
+            .join("\n\n");
+        }
+        debugDiv.textContent = debugText;
+      };
+
+      function formatLandmarks(landmarks, handIndex) {
+        const landmarkNames = [
+          "wrist",
+          "thumb_cmc",
+          "thumb_mcp",
+          "thumb_ip",
+          "thumb_tip",
+          "index_mcp",
+          "index_pip",
+          "index_dip",
+          "index_tip",
+          "middle_mcp",
+          "middle_pip",
+          "middle_dip",
+          "middle_tip",
+          "ring_mcp",
+          "ring_pip",
+          "ring_dip",
+          "ring_tip",
+          "pinky_mcp",
+          "pinky_pip",
+          "pinky_dip",
+          "pinky_tip",
+        ];
+
+        return landmarks
+          .map((landmark, i) => {
+            return (
+              `Hand ${handIndex + 1} - ${landmarkNames[i]}:` +
+              `  x: ${landmark.x.toFixed(3)}` +
+              `  y: ${landmark.y.toFixed(3)}` +
+              `  z: ${landmark.z.toFixed(3)}`
+            );
+          })
+          .join("\n");
+      }
+
+      function onResults(results) {
+        // Clear previous frame's objects
+        while (scene.children.length > 0) {
+          scene.remove(scene.children[0]);
+        }
+
+        if (results.multiHandLandmarks) {
+          updateFaustParamsForLandmarks(window.faustNode);
+          showDebugText(results);
+          for (const landmarks of results.multiHandLandmarks) {
+            drawConnectors(scene, landmarks, HAND_CONNECTIONS, {
+              color: 0x00ff00,
+              lineWidth: 2,
+            });
+
+            drawLandmarks(scene, landmarks, {
+              color: 0xffffff,
+              radius: 4,
+            });
+
+            updateFaustParams(window.faustNode, landmarks);
+          }
+        }
+      }
+
       const hands = new Hands({
-        locateFile: (file) => {
-          return `./modules/hands_files/${file}`;
-          // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-        },
+        locateFile: (file) => `./modules/hands_files/${file}`,
       });
+
       hands.setOptions({
         maxNumHands: 2,
         modelComplexity: 1,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5,
       });
+
       hands.onResults(onResults);
 
-      const camera = new Camera(videoElement, {
+      const canvasCamera = new Camera(videoElement, {
         onFrame: async () => {
           await hands.send({ image: videoElement });
         },
         width: 1280,
         height: 720,
-        facingMode: "environment",
       });
-      camera.start();
-      // console.log(camera.h);
-
+      canvasCamera.start();
       await attachFaustNode();
-      console.log(initXR);
     </script>
   </head>
 
-  <body style="margin: 0px; padding: 0px; overflow-y: hidden">
-    <button id="button-xr" style="position: absolute; top: 10px; left: 10px">
-      Start Hello WebXR
-    </button>
-    <div class="container">
-      <canvas
-        class="output_canvas"
-        width="auto"
-        height="auto"
-        style="z-index: 5"
-      ></canvas>
-      <canvas
-        class="output_canvas_xr"
-        width="auto"
-        height="auto"
-        style="z-index: 10"
-      ></canvas>
-
-      <video class="input_video" width="200" height="200"></video>
-    </div>
-    <main id="main">
-      <div id="div-faust-ui"></div>
-    </main>
+  <body>
+    <div id="container"></div>
   </body>
 </html>
