@@ -1,38 +1,624 @@
-(function () {/*
-
+(function () {
+    /*
     Copyright The Closure Library Authors.
     SPDX-License-Identifier: Apache-2.0
-   */
-    'use strict'; function n(a) { var b = 0; return function () { return b < a.length ? { done: !1, value: a[b++] } : { done: !0 } } } var q = "function" == typeof Object.defineProperties ? Object.defineProperty : function (a, b, e) { if (a == Array.prototype || a == Object.prototype) return a; a[b] = e.value; return a };
-    function t(a) { a = ["object" == typeof globalThis && globalThis, a, "object" == typeof window && window, "object" == typeof self && self, "object" == typeof global && global]; for (var b = 0; b < a.length; ++b) { var e = a[b]; if (e && e.Math == Math) return e } throw Error("Cannot find global object"); } var u = t(this); function v(a, b) { if (b) a: { var e = u; a = a.split("."); for (var f = 0; f < a.length - 1; f++) { var h = a[f]; if (!(h in e)) break a; e = e[h] } a = a[a.length - 1]; f = e[a]; b = b(f); b != f && null != b && q(e, a, { configurable: !0, writable: !0, value: b }) } }
-    v("Symbol", function (a) { function b(l) { if (this instanceof b) throw new TypeError("Symbol is not a constructor"); return new e(f + (l || "") + "_" + h++, l) } function e(l, c) { this.g = l; q(this, "description", { configurable: !0, writable: !0, value: c }) } if (a) return a; e.prototype.toString = function () { return this.g }; var f = "jscomp_symbol_" + (1E9 * Math.random() >>> 0) + "_", h = 0; return b });
-    v("Symbol.iterator", function (a) { if (a) return a; a = Symbol("Symbol.iterator"); for (var b = "Array Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" "), e = 0; e < b.length; e++) { var f = u[b[e]]; "function" === typeof f && "function" != typeof f.prototype[a] && q(f.prototype, a, { configurable: !0, writable: !0, value: function () { return w(n(this)) } }) } return a }); function w(a) { a = { next: a }; a[Symbol.iterator] = function () { return this }; return a }
-    function x(a) { var b = "undefined" != typeof Symbol && Symbol.iterator && a[Symbol.iterator]; return b ? b.call(a) : { next: n(a) } } function y() { this.i = !1; this.g = null; this.o = void 0; this.j = 1; this.m = 0; this.h = null } function z(a) { if (a.i) throw new TypeError("Generator is already running"); a.i = !0 } y.prototype.l = function (a) { this.o = a }; function A(a, b) { a.h = { F: b, G: !0 }; a.j = a.m } y.prototype.return = function (a) { this.h = { return: a }; this.j = this.m }; function B(a) { this.g = new y; this.h = a }
-    function C(a, b) { z(a.g); var e = a.g.g; if (e) return D(a, "return" in e ? e["return"] : function (f) { return { value: f, done: !0 } }, b, a.g.return); a.g.return(b); return H(a) } function D(a, b, e, f) { try { var h = b.call(a.g.g, e); if (!(h instanceof Object)) throw new TypeError("Iterator result " + h + " is not an object"); if (!h.done) return a.g.i = !1, h; var l = h.value } catch (c) { return a.g.g = null, A(a.g, c), H(a) } a.g.g = null; f.call(a.g, l); return H(a) }
-    function H(a) { for (; a.g.j;)try { var b = a.h(a.g); if (b) return a.g.i = !1, { value: b.value, done: !1 } } catch (e) { a.g.o = void 0, A(a.g, e) } a.g.i = !1; if (a.g.h) { b = a.g.h; a.g.h = null; if (b.G) throw b.F; return { value: b.return, done: !0 } } return { value: void 0, done: !0 } }
-    function I(a) { this.next = function (b) { z(a.g); a.g.g ? b = D(a, a.g.g.next, b, a.g.l) : (a.g.l(b), b = H(a)); return b }; this.throw = function (b) { z(a.g); a.g.g ? b = D(a, a.g.g["throw"], b, a.g.l) : (A(a.g, b), b = H(a)); return b }; this.return = function (b) { return C(a, b) }; this[Symbol.iterator] = function () { return this } } function J(a) { function b(f) { return a.next(f) } function e(f) { return a.throw(f) } return new Promise(function (f, h) { function l(c) { c.done ? f(c.value) : Promise.resolve(c.value).then(b, e).then(l, h) } l(a.next()) }) }
-    v("Promise", function (a) {
-        function b(c) { this.h = 0; this.i = void 0; this.g = []; this.o = !1; var d = this.j(); try { c(d.resolve, d.reject) } catch (g) { d.reject(g) } } function e() { this.g = null } function f(c) { return c instanceof b ? c : new b(function (d) { d(c) }) } if (a) return a; e.prototype.h = function (c) { if (null == this.g) { this.g = []; var d = this; this.i(function () { d.l() }) } this.g.push(c) }; var h = u.setTimeout; e.prototype.i = function (c) { h(c, 0) }; e.prototype.l = function () {
-            for (; this.g && this.g.length;) {
-                var c = this.g; this.g = []; for (var d = 0; d < c.length; ++d) {
-                    var g =
-                        c[d]; c[d] = null; try { g() } catch (k) { this.j(k) }
-                }
-            } this.g = null
-        }; e.prototype.j = function (c) { this.i(function () { throw c; }) }; b.prototype.j = function () { function c(k) { return function (m) { g || (g = !0, k.call(d, m)) } } var d = this, g = !1; return { resolve: c(this.A), reject: c(this.l) } }; b.prototype.A = function (c) { if (c === this) this.l(new TypeError("A Promise cannot resolve to itself")); else if (c instanceof b) this.C(c); else { a: switch (typeof c) { case "object": var d = null != c; break a; case "function": d = !0; break a; default: d = !1 }d ? this.v(c) : this.m(c) } };
-        b.prototype.v = function (c) { var d = void 0; try { d = c.then } catch (g) { this.l(g); return } "function" == typeof d ? this.D(d, c) : this.m(c) }; b.prototype.l = function (c) { this.u(2, c) }; b.prototype.m = function (c) { this.u(1, c) }; b.prototype.u = function (c, d) { if (0 != this.h) throw Error("Cannot settle(" + c + ", " + d + "): Promise already settled in state" + this.h); this.h = c; this.i = d; 2 === this.h && this.B(); this.H() }; b.prototype.B = function () { var c = this; h(function () { if (c.I()) { var d = u.console; "undefined" !== typeof d && d.error(c.i) } }, 1) }; b.prototype.I =
-            function () { if (this.o) return !1; var c = u.CustomEvent, d = u.Event, g = u.dispatchEvent; if ("undefined" === typeof g) return !0; "function" === typeof c ? c = new c("unhandledrejection", { cancelable: !0 }) : "function" === typeof d ? c = new d("unhandledrejection", { cancelable: !0 }) : (c = u.document.createEvent("CustomEvent"), c.initCustomEvent("unhandledrejection", !1, !0, c)); c.promise = this; c.reason = this.i; return g(c) }; b.prototype.H = function () { if (null != this.g) { for (var c = 0; c < this.g.length; ++c)l.h(this.g[c]); this.g = null } }; var l = new e; b.prototype.C =
-                function (c) { var d = this.j(); c.s(d.resolve, d.reject) }; b.prototype.D = function (c, d) { var g = this.j(); try { c.call(d, g.resolve, g.reject) } catch (k) { g.reject(k) } }; b.prototype.then = function (c, d) { function g(p, r) { return "function" == typeof p ? function (E) { try { k(p(E)) } catch (F) { m(F) } } : r } var k, m, G = new b(function (p, r) { k = p; m = r }); this.s(g(c, k), g(d, m)); return G }; b.prototype.catch = function (c) { return this.then(void 0, c) }; b.prototype.s = function (c, d) {
-                    function g() {
-                        switch (k.h) {
-                            case 1: c(k.i); break; case 2: d(k.i); break; default: throw Error("Unexpected state: " +
-                                k.h);
-                        }
-                    } var k = this; null == this.g ? l.h(g) : this.g.push(g); this.o = !0
-                }; b.resolve = f; b.reject = function (c) { return new b(function (d, g) { g(c) }) }; b.race = function (c) { return new b(function (d, g) { for (var k = x(c), m = k.next(); !m.done; m = k.next())f(m.value).s(d, g) }) }; b.all = function (c) { var d = x(c), g = d.next(); return g.done ? f([]) : new b(function (k, m) { function G(E) { return function (F) { p[E] = F; r--; 0 == r && k(p) } } var p = [], r = 0; do p.push(void 0), r++, f(g.value).s(G(p.length - 1), m), g = d.next(); while (!g.done) }) }; return b
+    */
+    'use strict';
+
+    // Utility function to iterate over an array
+    function createIterator(array) {
+        let index = 0;
+        return function () {
+            return index < array.length ? { done: false, value: array[index++] } : { done: true };
+        };
+    }
+
+    // Polyfill for Object.defineProperty
+    const defineProperty = typeof Object.defineProperties === "function" ? Object.defineProperty : function (obj, prop, descriptor) {
+        if (obj === Array.prototype || obj === Object.prototype) return obj;
+        obj[prop] = descriptor.value;
+        return obj;
+    };
+
+    // Function to find the global object
+    function getGlobalObject(context) {
+        const possibleGlobals = [
+            typeof globalThis === "object" && globalThis,
+            context,
+            typeof window === "object" && window,
+            typeof self === "object" && self,
+            typeof global === "object" && global
+        ];
+
+        for (let i = 0; i < possibleGlobals.length; ++i) {
+            const global = possibleGlobals[i];
+            if (global && global.Math === Math) return global;
+        }
+        throw new Error("Cannot find global object");
+    }
+
+    const globalObject = getGlobalObject(this);
+
+    // Function to define or redefine a property on the global object
+    function defineOrRedefineProperty(path, redefineFn) {
+        if (redefineFn) {
+            const parts = path.split(".");
+            let current = globalObject;
+
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+                if (!(part in current)) break;
+                current = current[part];
+            }
+
+            const lastPart = parts[parts.length - 1];
+            const currentValue = current[lastPart];
+            const newValue = redefineFn(currentValue);
+
+            if (newValue !== currentValue && newValue !== null) {
+                defineProperty(current, lastPart, { configurable: true, writable: true, value: newValue });
+            }
+        }
+    }
+
+    // Polyfill for Symbol
+    defineOrRedefineProperty("Symbol", function (existingSymbol) {
+        if (existingSymbol) return existingSymbol;
+
+        let symbolCounter = 0;
+        const symbolPrefix = "jscomp_symbol_" + (1E9 * Math.random() >>> 0) + "_";
+
+        function Symbol(description) {
+            if (this instanceof Symbol) throw new TypeError("Symbol is not a constructor");
+            return new SymbolInstance(symbolPrefix + (description || "") + "_" + symbolCounter++, description);
+        }
+
+        function SymbolInstance(id, description) {
+            this.id = id;
+            defineProperty(this, "description", { configurable: true, writable: true, value: description });
+        }
+
+        SymbolInstance.prototype.toString = function () {
+            return this.id;
+        };
+
+        return Symbol;
     });
-    var K = "function" == typeof Object.assign ? Object.assign : function (a, b) { for (var e = 1; e < arguments.length; e++) { var f = arguments[e]; if (f) for (var h in f) Object.prototype.hasOwnProperty.call(f, h) && (a[h] = f[h]) } return a }; v("Object.assign", function (a) { return a || K }); var L = this || self; var M = { facingMode: "user", width: 640, height: 480 }; function N(a, b) { this.video = a; this.i = 0; this.h = Object.assign(Object.assign({}, M), b) } N.prototype.stop = function () { var a = this, b, e, f, h; return J(new I(new B(function (l) { if (a.g) { b = a.g.getTracks(); e = x(b); for (f = e.next(); !f.done; f = e.next())h = f.value, h.stop(); a.g = void 0 } l.j = 0 }))) };
-    N.prototype.start = function () { var a = this, b; return J(new I(new B(function (e) { navigator.mediaDevices && navigator.mediaDevices.getUserMedia || alert("No navigator.mediaDevices.getUserMedia exists."); b = a.h; return e.return(navigator.mediaDevices.getUserMedia({ video: { facingMode: b.facingMode, width: b.width, height: b.height } }).then(function (f) { O(a, f) }).catch(function (f) { var h = "Failed to acquire camera feed: " + f; console.error(h); alert(h); throw f; })) }))) };
-    function P(a) { window.requestAnimationFrame(function () { Q(a) }) } function O(a, b) { a.g = b; a.video.srcObject = b; a.video.onloadedmetadata = function () { a.video.play(); P(a) } } function Q(a) { var b = null; a.video.paused || a.video.currentTime === a.i || (a.i = a.video.currentTime, b = a.h.onFrame()); b ? b.then(function () { P(a) }) : P(a) } var R = ["Camera"], S = L; R[0] in S || "undefined" == typeof S.execScript || S.execScript("var " + R[0]);
-    for (var T; R.length && (T = R.shift());)R.length || void 0 === N ? S[T] && S[T] !== Object.prototype[T] ? S = S[T] : S = S[T] = {} : S[T] = N;
+
+    // Polyfill for Symbol.iterator
+    defineOrRedefineProperty("Symbol.iterator", function (existingIterator) {
+        if (existingIterator) return existingIterator;
+
+        const iteratorSymbol = Symbol("Symbol.iterator");
+        const iterableTypes = [
+            "Array", "Int8Array", "Uint8Array", "Uint8ClampedArray",
+            "Int16Array", "Uint16Array", "Int32Array", "Uint32Array",
+            "Float32Array", "Float64Array"
+        ];
+
+        for (let i = 0; i < iterableTypes.length; i++) {
+            const type = globalObject[iterableTypes[i]];
+            if (typeof type === "function" && typeof type.prototype[iteratorSymbol] !== "function") {
+                defineProperty(type.prototype, iteratorSymbol, {
+                    configurable: true,
+                    writable: true,
+                    value: function () {
+                        return createIterable(createIterator(this));
+                    }
+                });
+            }
+        }
+
+        return iteratorSymbol;
+    });
+
+    // Helper function to create an iterable object
+    function createIterable(iterator) {
+        const iterable = { next: iterator };
+        iterable[Symbol.iterator] = function () { return this; };
+        return iterable;
+    }
+
+    // Function to get an iterator for an object
+    function getIterator(obj) {
+        const iteratorMethod = typeof Symbol !== "undefined" && Symbol.iterator && obj[Symbol.iterator];
+        return iteratorMethod ? iteratorMethod.call(obj) : { next: createIterator(obj) };
+    }
+
+    // Generator state management
+    function GeneratorState() {
+        this.isRunning = false;
+        this.currentValue = null;
+        this.returnValue = undefined;
+        this.state = 1;
+        this.finallyState = 0;
+        this.exception = null;
+    }
+
+    function checkGeneratorRunning(generator) {
+        if (generator.isRunning) throw new TypeError("Generator is already running");
+        generator.isRunning = true;
+    }
+
+    GeneratorState.prototype.setReturnValue = function (value) {
+        this.returnValue = value;
+    };
+
+    function handleException(generator, exception) {
+        generator.exception = { value: exception, isException: true };
+        generator.state = generator.finallyState;
+    }
+
+    GeneratorState.prototype.return = function (value) {
+        this.exception = { return: value };
+        this.state = this.finallyState;
+    };
+
+    function Generator(generatorFunction) {
+        this.state = new GeneratorState();
+        this.generatorFunction = generatorFunction;
+    }
+
+    function handleReturn(generator, value) {
+        checkGeneratorRunning(generator.state);
+        const iterator = generator.state.currentValue;
+        if (iterator) {
+            return handleIteratorMethod(generator, "return" in iterator ? iterator["return"] : function (v) { return { value: v, done: true }; }, value, generator.state.return);
+        }
+        generator.state.return(value);
+        return executeGenerator(generator);
+    }
+
+    function handleIteratorMethod(generator, method, value, returnValueHandler) {
+        try {
+            const result = method.call(generator.state.currentValue, value);
+            if (!(result instanceof Object)) throw new TypeError("Iterator result " + result + " is not an object");
+            if (!result.done) return generator.state.isRunning = false, result;
+            const finalValue = result.value;
+        } catch (error) {
+            generator.state.currentValue = null;
+            handleException(generator.state, error);
+            return executeGenerator(generator);
+        }
+        generator.state.currentValue = null;
+        returnValueHandler.call(generator.state, finalValue);
+        return executeGenerator(generator);
+    }
+
+    function executeGenerator(generator) {
+        while (generator.state.state) {
+            try {
+                const result = generator.generatorFunction(generator.state);
+                if (result) return generator.state.isRunning = false, { value: result.value, done: false };
+            } catch (error) {
+                generator.state.returnValue = undefined;
+                handleException(generator.state, error);
+            }
+        }
+        generator.state.isRunning = false;
+        if (generator.state.exception) {
+            const exception = generator.state.exception;
+            generator.state.exception = null;
+            if (exception.isException) throw exception.value;
+            return { value: exception.return, done: true };
+        }
+        return { value: undefined, done: true };
+    }
+
+    function GeneratorIterator(generator) {
+        this.next = function (value) {
+            checkGeneratorRunning(generator.state);
+            if (generator.state.currentValue) {
+                return handleIteratorMethod(generator, generator.state.currentValue.next, value, generator.state.setReturnValue);
+            }
+            generator.state.setReturnValue(value);
+            return executeGenerator(generator);
+        };
+        this.throw = function (value) {
+            checkGeneratorRunning(generator.state);
+            if (generator.state.currentValue) {
+                return handleIteratorMethod(generator, generator.state.currentValue["throw"], value, generator.state.setReturnValue);
+            }
+            handleException(generator.state, value);
+            return executeGenerator(generator);
+        };
+        this.return = function (value) {
+            return handleReturn(generator, value);
+        };
+        this[Symbol.iterator] = function () {
+            return this;
+        };
+    }
+
+    function asyncGenerator(generator) {
+        function handleNext(value) {
+            return generator.next(value);
+        }
+        function handleThrow(value) {
+            return generator.throw(value);
+        }
+        return new Promise(function (resolve, reject) {
+            function handleResult(result) {
+                result.done ? resolve(result.value) : Promise.resolve(result.value).then(handleNext, handleThrow).then(handleResult, reject);
+            }
+            handleResult(generator.next());
+        });
+    }
+
+    // Polyfill for Promise
+    defineOrRedefineProperty("Promise", function (existingPromise) {
+        if (existingPromise) return existingPromise;
+
+        function Promise(executor) {
+            this.state = 0;
+            this.value = undefined;
+            this.callbacks = [];
+            this.isHandled = false;
+            const resolveReject = this.createResolveReject();
+            try {
+                executor(resolveReject.resolve, resolveReject.reject);
+            } catch (error) {
+                resolveReject.reject(error);
+            }
+        }
+
+        function CallbackQueue() {
+            this.callbacks = null;
+        }
+
+        CallbackQueue.prototype.addCallback = function (callback) {
+            if (this.callbacks === null) {
+                this.callbacks = [];
+                const self = this;
+                this.schedule(function () {
+                    self.executeCallbacks();
+                });
+            }
+            this.callbacks.push(callback);
+        };
+
+        const setTimeoutFn = globalObject.setTimeout;
+
+        CallbackQueue.prototype.schedule = function (callback) {
+            setTimeoutFn(callback, 0);
+        };
+
+        CallbackQueue.prototype.executeCallbacks = function () {
+            while (this.callbacks && this.callbacks.length) {
+                const callbacks = this.callbacks;
+                this.callbacks = [];
+                for (let i = 0; i < callbacks.length; ++i) {
+                    const callback = callbacks[i];
+                    callbacks[i] = null;
+                    try {
+                        callback();
+                    } catch (error) {
+                        this.handleException(error);
+                    }
+                }
+            }
+            this.callbacks = null;
+        };
+
+        CallbackQueue.prototype.handleException = function (error) {
+            this.schedule(function () {
+                throw error;
+            });
+        };
+
+        Promise.prototype.createResolveReject = function () {
+            const self = this;
+            let isResolvedOrRejected = false;
+            return {
+                resolve: function (value) {
+                    if (!isResolvedOrRejected) {
+                        isResolvedOrRejected = true;
+                        self.resolve(value);
+                    }
+                },
+                reject: function (reason) {
+                    if (!isResolvedOrRejected) {
+                        isResolvedOrRejected = true;
+                        self.reject(reason);
+                    }
+                }
+            };
+        };
+
+        Promise.prototype.resolve = function (value) {
+            if (value === this) {
+                this.reject(new TypeError("A Promise cannot resolve to itself"));
+            } else if (value instanceof Promise) {
+                this.handlePromise(value);
+            } else {
+                const valueType = typeof value;
+                const isObjectOrFunction = valueType === "object" ? value !== null : valueType === "function";
+                isObjectOrFunction ? this.handleThenable(value) : this.fulfill(value);
+            }
+        };
+
+        Promise.prototype.handleThenable = function (thenable) {
+            let then;
+            try {
+                then = thenable.then;
+            } catch (error) {
+                this.reject(error);
+                return;
+            }
+            if (typeof then === "function") {
+                this.handleThen(then, thenable);
+            } else {
+                this.fulfill(thenable);
+            }
+        };
+
+        Promise.prototype.reject = function (reason) {
+            this.settle(2, reason);
+        };
+
+        Promise.prototype.fulfill = function (value) {
+            this.settle(1, value);
+        };
+
+        Promise.prototype.settle = function (state, value) {
+            if (this.state !== 0) throw new Error("Cannot settle(" + state + ", " + value + "): Promise already settled in state" + this.state);
+            this.state = state;
+            this.value = value;
+            if (state === 2) this.handleUnhandledRejection();
+            this.executeCallbacks();
+        };
+
+        Promise.prototype.handleUnhandledRejection = function () {
+            const self = this;
+            setTimeoutFn(function () {
+                if (self.isUnhandledRejection()) {
+                    const console = globalObject.console;
+                    if (typeof console !== "undefined") console.error(self.value);
+                }
+            }, 1);
+        };
+
+        Promise.prototype.isUnhandledRejection = function () {
+            if (this.isHandled) return false;
+            const CustomEvent = globalObject.CustomEvent;
+            const Event = globalObject.Event;
+            const dispatchEvent = globalObject.dispatchEvent;
+            if (typeof dispatchEvent === "undefined") return true;
+            let event;
+            if (typeof CustomEvent === "function") {
+                event = new CustomEvent("unhandledrejection", { cancelable: true });
+            } else if (typeof Event === "function") {
+                event = new Event("unhandledrejection", { cancelable: true });
+            } else {
+                event = globalObject.document.createEvent("CustomEvent");
+                event.initCustomEvent("unhandledrejection", false, true, event);
+            }
+            event.promise = this;
+            event.reason = this.value;
+            return dispatchEvent(event);
+        };
+
+        Promise.prototype.executeCallbacks = function () {
+            if (this.callbacks !== null) {
+                for (let i = 0; i < this.callbacks.length; ++i) {
+                    callbackQueue.addCallback(this.callbacks[i]);
+                }
+                this.callbacks = null;
+            }
+        };
+
+        const callbackQueue = new CallbackQueue();
+
+        Promise.prototype.handlePromise = function (promise) {
+            const resolveReject = this.createResolveReject();
+            promise.then(resolveReject.resolve, resolveReject.reject);
+        };
+
+        Promise.prototype.handleThen = function (then, thenable) {
+            const resolveReject = this.createResolveReject();
+            try {
+                then.call(thenable, resolveReject.resolve, resolveReject.reject);
+            } catch (error) {
+                resolveReject.reject(error);
+            }
+        };
+
+        Promise.prototype.then = function (onFulfilled, onRejected) {
+            const self = this;
+            function wrapCallback(callback, defaultCallback) {
+                return typeof callback === "function" ? function (value) {
+                    try {
+                        resolve(callback(value));
+                    } catch (error) {
+                        reject(error);
+                    }
+                } : defaultCallback;
+            }
+            let resolve, reject;
+            const newPromise = new Promise(function (res, rej) {
+                resolve = res;
+                reject = rej;
+            });
+            this.handleCallbacks(wrapCallback(onFulfilled, resolve), wrapCallback(onRejected, reject));
+            return newPromise;
+        };
+
+        Promise.prototype.catch = function (onRejected) {
+            return this.then(undefined, onRejected);
+        };
+
+        Promise.prototype.handleCallbacks = function (onFulfilled, onRejected) {
+            const self = this;
+            function handleCallback() {
+                switch (self.state) {
+                    case 1:
+                        onFulfilled(self.value);
+                        break;
+                    case 2:
+                        onRejected(self.value);
+                        break;
+                    default:
+                        throw new Error("Unexpected state: " + self.state);
+                }
+            }
+            if (this.callbacks === null) {
+                callbackQueue.addCallback(handleCallback);
+            } else {
+                this.callbacks.push(handleCallback);
+            }
+            this.isHandled = true;
+        };
+
+        Promise.resolve = function (value) {
+            return value instanceof Promise ? value : new Promise(function (resolve) { resolve(value); });
+        };
+
+        Promise.reject = function (reason) {
+            return new Promise(function (_, reject) { reject(reason); });
+        };
+
+        Promise.race = function (iterable) {
+            return new Promise(function (resolve, reject) {
+                for (const value of getIterator(iterable)) {
+                    Promise.resolve(value).then(resolve, reject);
+                }
+            });
+        };
+
+        Promise.all = function (iterable) {
+            const iterator = getIterator(iterable);
+            const first = iterator.next();
+            if (first.done) return Promise.resolve([]);
+            return new Promise(function (resolve, reject) {
+                const results = [];
+                let remaining = 0;
+                function handleResult(index) {
+                    return function (value) {
+                        results[index] = value;
+                        remaining--;
+                        if (remaining === 0) resolve(results);
+                    };
+                }
+                do {
+                    results.push(undefined);
+                    remaining++;
+                    Promise.resolve(first.value).then(handleResult(results.length - 1), reject);
+                    first = iterator.next();
+                } while (!first.done);
+            });
+        };
+
+        return Promise;
+    });
+
+    // Polyfill for Object.assign
+    const assign = typeof Object.assign === "function" ? Object.assign : function (target, ...sources) {
+        for (let i = 1; i < sources.length; i++) {
+            const source = sources[i];
+            if (source) {
+                for (const key in source) {
+                    if (Object.prototype.hasOwnProperty.call(source, key)) {
+                        target[key] = source[key];
+                    }
+                }
+            }
+        }
+        return target;
+    };
+
+    defineOrRedefineProperty("Object.assign", function (existingAssign) {
+        return existingAssign || assign;
+    });
+
+    const globalContext = this || self;
+    const defaultCameraSettings = { facingMode: "user", width: 640, height: 480 };
+
+    function Camera(videoElement, options) {
+        this.video = videoElement;
+        this.currentTime = 0;
+        this.settings = assign(assign({}, defaultCameraSettings), options);
+    }
+
+    Camera.prototype.stop = function () {
+        const self = this;
+        return asyncGenerator(new GeneratorIterator(new Generator(function (generatorState) {
+            if (self.stream) {
+                const tracks = self.stream.getTracks();
+                for (const track of getIterator(tracks)) {
+                    track.stop();
+                }
+                self.stream = undefined;
+            }
+            generatorState.state = 0;
+        })));
+    };
+
+    Camera.prototype.start = function () {
+        const self = this;
+        return asyncGenerator(new GeneratorIterator(new Generator(function (generatorState) {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("No navigator.mediaDevices.getUserMedia exists.");
+            }
+            const settings = self.settings;
+            return generatorState.return(navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: settings.facingMode,
+                    width: settings.width,
+                    height: settings.height
+                }
+            }).then(function (stream) {
+                handleStream(self, stream);
+            }).catch(function (error) {
+                const errorMessage = "Failed to acquire camera feed: " + error;
+                console.error(errorMessage);
+                alert(errorMessage);
+                throw error;
+            }));
+        })));
+    };
+
+    function requestAnimationFrameLoop(camera) {
+        window.requestAnimationFrame(function () {
+            updateFrame(camera);
+        });
+    }
+
+    function handleStream(camera, stream) {
+        camera.stream = stream;
+        camera.video.srcObject = stream;
+        camera.video.onloadedmetadata = function () {
+            camera.video.play();
+            requestAnimationFrameLoop(camera);
+        };
+    }
+
+    function updateFrame(camera) {
+        let frameCallback = null;
+        if (!camera.video.paused && camera.video.currentTime !== camera.currentTime) {
+            camera.currentTime = camera.video.currentTime;
+            frameCallback = camera.settings.onFrame();
+        }
+        if (frameCallback) {
+            frameCallback.then(function () {
+                requestAnimationFrameLoop(camera);
+            });
+        } else {
+            requestAnimationFrameLoop(camera);
+        }
+    }
+
+    const cameraNamespace = ["Camera"];
+    let globalNamespace = globalContext;
+
+    for (let namespacePart; cameraNamespace.length && (namespacePart = cameraNamespace.shift());) {
+        if (cameraNamespace.length || typeof Camera === "undefined") {
+            if (globalNamespace[namespacePart] && globalNamespace[namespacePart] !== Object.prototype[namespacePart]) {
+                globalNamespace = globalNamespace[namespacePart];
+            } else {
+                globalNamespace = globalNamespace[namespacePart] = {};
+            }
+        } else {
+            globalNamespace[namespacePart] = Camera;
+        }
+    }
 }).call(this);
