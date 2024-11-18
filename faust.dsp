@@ -4,10 +4,22 @@ declare author "Remi Chapelle";
 import("stdfaust.lib");
 import("finger_bindings.dsp");
 
+// Arpeggiator parameters
+// arp_speed = hslider("[11]arp_speed[unit:Hz]", 4, 0.1, 16, 0.1);
+// arp_pattern = ba.time : *(arp_speed) : int(_) % 4; // Creates a repeating pattern of 0,1,2,3
 
+// Base frequency calculation from wrist position
+// base_freq = wrist_x : it.remap(0, 1, 48, 48+12) : floor;
+
+// Arpeggiator note offsets (in semitones)
+// arp_offset = arp_pattern : ba.selectn(3, _, 0, 4, 7, 12); // Major chord pattern: root, third, fifth, octave
+
+// Final frequency calculation with arpeggiator
+// f = (base_freq + arp_offset) : ba.midikey2hz;
 
 // f = hslider("[00]freq[unit:Hz]",440,50,1000,0.1);
-f = wrist_x : it.remap(0, 1, 48, 48+12) : floor(_): ba.midikey2hz(_);
+f = wrist_x : it.remap(0, 1, 24, 24+1) : floor(_): ba.midikey2hz(_); 
+// f = 40;
 
 // g = hslider("[01]gain",1,0,1,0.01);
 g = wrist_z;
@@ -35,6 +47,7 @@ nog = hslider("[08]noise gain",0.01,0,1,0.001);
 pg = hslider("[09]gain preset",1,0,1,0.01);
 r = dm.zita_light; //reverb
 
+
 //Instrument
 
 orgue =
@@ -58,4 +71,17 @@ orgue =
         + os.osc(f*16)  *p8*0.4
         + no.noise*nog;
 
-process = orgue*g*t <: r;
+organ = orgue*g*t <: r;
+
+echo_time = max(ring_tip_y*8000,0.01);
+echo_feedback = 0.2;
+echo_damping = 0.8;
+
+multiecho = vgroup("stereo echo", multi(ef.echo(echo_time,echo_feedback,echo_damping), 2))
+    with { 
+        multi(f,1) = f;
+        multi(f,n) = f,multi(f,n-1);
+    };
+
+
+process = organ <: _,_ : multiecho;
