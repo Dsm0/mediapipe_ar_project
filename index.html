@@ -78,8 +78,8 @@
       let aspectRatio = 16 / 9;
 
       const scaler = {
-        x: 1,
-        y: 1,
+        x: 1 * aspectRatio * 1.5,
+        y: 1 * 1.5,
         z: 1,
       };
 
@@ -196,7 +196,7 @@
             }));
 
             // if (i === LANDMARKS.INDEX_FINGER_TIP) {
-            console.log(landmarks[i].x, transformedLandmarks[i].x);
+            // console.log(landmarks[i].x, transformedLandmarks[i].x);
             // }
 
             drawConnectors(scene, transformedLandmarks, HAND_CONNECTIONS, {
