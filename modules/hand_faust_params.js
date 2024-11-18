@@ -14,93 +14,151 @@ const HAND_FAUST_PARAMS = {
         minZValue = Math.min(minZValue, value.z);
         maxZValue = Math.max(maxZValue, value.z);
 
-        let adjustedValue = (Math.abs(value.z) * 1e6)
-
-        let gain = adjustedValue.clamp(0, 0.7);
+        let adjustedValue = scaleZ(value);
 
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/gain", gain)
+            faustNode.setParamValue("/hand_synth/wrist_x", adjustedValue.x)
+            faustNode.setParamValue("/hand_synth/wrist_y", adjustedValue.y)
+            faustNode.setParamValue("/hand_synth/wrist_z", adjustedValue.z)
+        }
+    },
+    // [LANDMARKS.THUMB_TIP]: (faustNode, value) => {
+    //     // console.log(value);
+
+    //     let freq = (value.y).clamp(0, 10);
+
+    //     if (faustNode) {
+    //         faustNode.setParamValue("/hand_synth/thumb_tip_x", value.x)
+    //         faustNode.setParamValue("/hand_synth/thumb_tip_y", value.y)
+    //         faustNode.setParamValue("/hand_synth/thumb_tip_z", value.z)
+    //     }
+    // },
+
+    [LANDMARKS.INDEX_FINGER_TIP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/index_finger_tip_x", value.x)
+            faustNode.setParamValue("/hand_synth/index_finger_tip_y", value.y)
+            faustNode.setParamValue("/hand_synth/index_finger_tip_z", value.z)
+        }
+    },
+
+    // [LANDMARKS.MIDDLE_FINGER_TIP]: (faustNode, value) => {
+    //     if (faustNode) {
+    //         faustNode.setParamValue("/hand_synth/middle_finger_tip_x", value.x)
+    //         faustNode.setParamValue("/hand_synth/middle_finger_tip_y", value.y)
+    //         faustNode.setParamValue("/hand_synth/middle_finger_tip_z", value.z)
+    //     }
+    // },
+
+    // [LANDMARKS.RING_FINGER_TIP]: (faustNode, value) => {
+
+    //     if (faustNode) {
+    //         faustNode.setParamValue("/hand_synth/ring_finger_tip_x", value.x)
+    //         faustNode.setParamValue("/hand_synth/ring_finger_tip_y", value.y)
+    //         faustNode.setParamValue("/hand_synth/ring_finger_tip_z", value.z)
+    //         // faustNode.setParamValue("/hand_synth/gain_8ve_partial", gain)
+    //     }
+    // },
+
+
+    // [LANDMARKS.PINKY_TIP]: (faustNode, value) => {
+
+    //     if (faustNode) {
+    //         faustNode.setParamValue("/hand_synth/pinky_tip_x", value.x)
+    //         faustNode.setParamValue("/hand_synth/pinky_tip_y", value.y)
+    //         faustNode.setParamValue("/hand_synth/pinky_tip_z", value.z)
+    //     }
+    // },
+
+    [LANDMARKS.THUMB_MCP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/thumb_mcp_x", value.x)
+            faustNode.setParamValue("/hand_synth/thumb_mcp_y", value.y)
+            faustNode.setParamValue("/hand_synth/thumb_mcp_z", value.z)
+        }
+    },
+
+    [LANDMARKS.THUMB_IP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/thumb_ip_x", value.x)
+            faustNode.setParamValue("/hand_synth/thumb_ip_y", value.y)
+            faustNode.setParamValue("/hand_synth/thumb_ip_z", value.z)
         }
     },
     [LANDMARKS.THUMB_TIP]: (faustNode, value) => {
-        // console.log(value);
-
-        let freq = (value.y).clamp(0, 10);
-
-        let scaledFreq = getScaledValue(freq, 0, 10, 220, 440);
-
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/freq", scaledFreq)
+            faustNode.setParamValue("/hand_synth/thumb_tip_x", value.x)
+            faustNode.setParamValue("/hand_synth/thumb_tip_y", value.y)
+            faustNode.setParamValue("/hand_synth/thumb_tip_z", value.z)
         }
     },
-
-    [LANDMARKS.INDEX_FINGER_TIP]: (faustNode, value) => {
-
-        let gain = (value.y).clamp(0, 1);
-        // console.log(value.x, gain);
-
+    [LANDMARKS.INDEX_FINGER_MCP]: (faustNode, value) => {
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/gain_fundamental", gain)
+            faustNode.setParamValue("/hand_synth/index_mcp_x", value.x)
+            faustNode.setParamValue("/hand_synth/index_mcp_y", value.y)
+            faustNode.setParamValue("/hand_synth/index_mcp_z", value.z)
         }
     },
-
     [LANDMARKS.MIDDLE_FINGER_TIP]: (faustNode, value) => {
-
-        let gain = (value.y).clamp(0, 1);
-        // console.log(value.x, gain);
-
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/gain_3d_partial", gain)
+            faustNode.setParamValue("/hand_synth/middle_tip_x", value.x)
+            faustNode.setParamValue("/hand_synth/middle_tip_y", value.y)
+            faustNode.setParamValue("/hand_synth/middle_tip_z", value.z)
+        }
+    },
+    [LANDMARKS.RING_FINGER_MCP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/ring_mcp_x", value.x)
+            faustNode.setParamValue("/hand_synth/ring_mcp_y", value.y)
+            faustNode.setParamValue("/hand_synth/ring_mcp_z", value.z)
         }
     },
 
+    [LANDMARKS.RING_FINGER_PIP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/ring_pip_x", value.x)
+            faustNode.setParamValue("/hand_synth/ring_pip_y", value.y)
+            faustNode.setParamValue("/hand_synth/ring_pip_z", value.z)
+        }
+    },
+
+    [LANDMARKS.RING_FINGER_DIP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/ring_dip_x", value.x)
+            faustNode.setParamValue("/hand_synth/ring_dip_y", value.y)
+            faustNode.setParamValue("/hand_synth/ring_dip_z", value.z)
+        }
+    },
     [LANDMARKS.RING_FINGER_TIP]: (faustNode, value) => {
-
-        let gain = (value.y).clamp(0, 1);
-        // console.log(value.x, gain);
-
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/gain_8ve_partial", gain)
+            faustNode.setParamValue("/hand_synth/ring_tip_x", value.x)
+            faustNode.setParamValue("/hand_synth/ring_tip_y", value.y)
+            faustNode.setParamValue("/hand_synth/ring_tip_z", value.z)
         }
     },
 
+    [LANDMARKS.PINKY_MCP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/pinky_mcp_x", value.x)
+            faustNode.setParamValue("/hand_synth/pinky_mcp_y", value.y)
+            faustNode.setParamValue("/hand_synth/pinky_mcp_z", value.z)
+        }
+    },
+    [LANDMARKS.PINKY_PIP]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/pinky_pip_x", value.x)
+            faustNode.setParamValue("/hand_synth/pinky_pip_y", value.y)
+            faustNode.setParamValue("/hand_synth/pinky_pip_z", value.z)
+        }
+    },
 
     [LANDMARKS.PINKY_TIP]: (faustNode, value) => {
-
-        let gain = (value.y).clamp(0, 1);
-
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/gain_other_partials", gain)
+            faustNode.setParamValue("/hand_synth/pinky_tip_x", value.x)
+            faustNode.setParamValue("/hand_synth/pinky_tip_y", value.y)
+            faustNode.setParamValue("/hand_synth/pinky_tip_z", value.z)
         }
     },
-
-
-
-    // [LANDMARKS.THUMB_MCP]: (faustNode, value) => {
-    //     // console.log(value);
-    //     // faustNode.setParamValue("/untitled1/gain", value)
-    // },
-    // [LANDMARKS.THUMB_IP]: (faustNode, value) => {
-    //     // console.log(value);
-    //     // faustNode.setParamValue("/untitled1/gain", value)
-    // },
-    // [LANDMARKS.THUMB_TIP]: 4,
-    // [LANDMARKS.INDEX_FINGER_MCP]: 5,
-    // [LANDMARKS.INDEX_FINGER_PIP]: 6,
-    // [LANDMARKS.INDEX_FINGER_DIP]: 7,
-    // [LANDMARKS.INDEX_FINGER_TIP]: 8,
-    // [LANDMARKS.MIDDLE_FINGER_MCP]: 9,
-    // [LANDMARKS.MIDDLE_FINGER_PIP]: 10,
-    // [LANDMARKS.MIDDLE_FINGER_DIP]: 11,
-    // [LANDMARKS.MIDDLE_FINGER_TIP]: 12,
-    // [LANDMARKS.RING_FINGER_MCP]: 13,
-    // [LANDMARKS.RING_FINGER_PIP]: 14,
-    // [LANDMARKS.RING_FINGER_DIP]: 15,
-    // [LANDMARKS.RING_FINGER_TIP]: 16,
-    // [LANDMARKS.PINKY_MCP]: 17,
-    // [LANDMARKS.PINKY_PIP]: 18,
-    // [LANDMARKS.PINKY_DIP]: 19,
-    // [LANDMARKS.PINKY_TIP]: 20,
 
 };
 

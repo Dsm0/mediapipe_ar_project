@@ -229,19 +229,11 @@
               `Hand ${handIndex + 1} - ${landmarkNames[i]}:` +
               `  x: ${landmark.x.toFixed(3)}` +
               `  y: ${landmark.y.toFixed(3)}` +
-              `  z: ${scaleY(landmark).z.toFixed(8)}`
+              `  z: ${landmark.z.toFixed(8)}`
             );
           })
           .join("\n");
       }
-
-      const scaleY = (point) => {
-        return {
-          x: point.x,
-          y: point.y,
-          z: point.z * 1e6,
-        };
-      };
 
       function onResults(results) {
         // Modify the scene clearing to preserve the video plane

@@ -2,15 +2,34 @@ declare name "hand_synth";
 declare author "Remi Chapelle";
 
 import("stdfaust.lib");
+import("finger_bindings.dsp");
 
-f = hslider("[00]freq[unit:Hz]",440,50,1000,0.1);
-g = hslider("[01]gain",1,0,1,0.01);
+
+
+// f = hslider("[00]freq[unit:Hz]",440,50,1000,0.1);
+f = wrist_x : it.remap(0, 1, 48, 48+12) : floor(_): ba.midikey2hz(_);
+
+// g = hslider("[01]gain",1,0,1,0.01);
+g = wrist_z;
 t = button("[10]gate") : si.smoo;
-p8 = hslider("[03]gain 8ve partial",1,0,1,0.01);
-p5 = hslider("[04]gain 5th partial",1,0,1,0.01);
-p3 = hslider("[05]gain 3d partial",1,0,1,0.01);
-px = hslider("[06]gain other partials",0.05,0,1,0.01);
-p0 = hslider("[02]gain fundamental",1,0,1,0.01);
+// t = 1 : si.smoo;
+
+// p8 = hslider("[03]gain 8ve partial",1,0,1,0.01);
+p8 = ring_tip_y;
+
+// p5 = hslider("[04]gain 5th partial",1,0,1,0.01);
+p5 = middle_tip_y;
+
+// p3 = hslider("[05]gain 3d partial",1,0,1,0.01);
+p3 = index_tip_y;
+
+// px = hslider("[06]gain other partials",0.05,0,1,0.01);
+px = pinky_tip_y;
+
+// p0 = hslider("[02]gain fundamental",1,0,1,0.01);
+p0 = thumb_tip_y;
+
+
 psub = hslider("[07]gain lower octave",1,0,1,0.01);
 nog = hslider("[08]noise gain",0.01,0,1,0.001);
 pg = hslider("[09]gain preset",1,0,1,0.01);

@@ -12,3 +12,12 @@
 Number.prototype.clamp = function (min, max) {
     return Math.min(Math.max(this, min), max);
 };
+
+
+const scaleZ = (point) => {
+    return {
+        x: point.x,
+        y: point.y,
+        z: (point.z * 1e6) - 0.15,
+    };
+};
