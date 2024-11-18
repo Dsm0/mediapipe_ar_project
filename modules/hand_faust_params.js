@@ -7,7 +7,6 @@ function getScaledValue(value, sourceRangeMin, sourceRangeMax, targetRangeMin, t
 let minZValue = Infinity;
 let maxZValue = -Infinity;
 
-
 const HAND_FAUST_PARAMS = {
     // DEFAULT: -1,
     [LANDMARKS.WRIST]: (faustNode, value) => {
@@ -20,7 +19,7 @@ const HAND_FAUST_PARAMS = {
         let gain = adjustedValue.clamp(0, 0.7);
 
         if (faustNode) {
-            faustNode.setParamValue("/untitled1/gain", gain)
+            faustNode.setParamValue("/hand_synth/gain", gain)
         }
     },
     [LANDMARKS.THUMB_TIP]: (faustNode, value) => {
@@ -31,7 +30,7 @@ const HAND_FAUST_PARAMS = {
         let scaledFreq = getScaledValue(freq, 0, 10, 220, 440);
 
         if (faustNode) {
-            faustNode.setParamValue("/untitled1/freq", scaledFreq)
+            faustNode.setParamValue("/hand_synth/freq", scaledFreq)
         }
     },
 
@@ -41,7 +40,7 @@ const HAND_FAUST_PARAMS = {
         // console.log(value.x, gain);
 
         if (faustNode) {
-            faustNode.setParamValue("/untitled1/gain_fundamental", gain)
+            faustNode.setParamValue("/hand_synth/gain_fundamental", gain)
         }
     },
 
@@ -51,7 +50,7 @@ const HAND_FAUST_PARAMS = {
         // console.log(value.x, gain);
 
         if (faustNode) {
-            faustNode.setParamValue("/untitled1/gain_3d_partial", gain)
+            faustNode.setParamValue("/hand_synth/gain_3d_partial", gain)
         }
     },
 
@@ -61,7 +60,7 @@ const HAND_FAUST_PARAMS = {
         // console.log(value.x, gain);
 
         if (faustNode) {
-            faustNode.setParamValue("/untitled1/gain_8ve_partial", gain)
+            faustNode.setParamValue("/hand_synth/gain_8ve_partial", gain)
         }
     },
 
@@ -71,7 +70,7 @@ const HAND_FAUST_PARAMS = {
         let gain = (value.y).clamp(0, 1);
 
         if (faustNode) {
-            faustNode.setParamValue("/untitled1/gain_other_partials", gain)
+            faustNode.setParamValue("/hand_synth/gain_other_partials", gain)
         }
     },
 
@@ -118,13 +117,13 @@ const updateFaustParams = (faustNode, landmarks) => {
 
 const updateFaustParamsNoLandmarks = (faustNode) => {
     if (faustNode) {
-        faustNode.setParamValue("/untitled1/gate", 0)
+        faustNode.setParamValue("/hand_synth/gate", 0)
     }
 };
 
 
 const updateFaustParamsForLandmarks = (faustNode) => {
     if (faustNode) {
-        faustNode.setParamValue("/untitled1/gate", 1)
+        faustNode.setParamValue("/hand_synth/gate", 1)
     }
 };  

@@ -28,10 +28,13 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
 
     // Load DSP metadata from JSON
     /** @type {FaustDspMeta} */
-    const dspMeta = await (await fetch("./dsp-meta.json")).json();
+    // const dspMeta = await (await fetch("./dsp-meta.json")).json();
+    const dspMeta = await (await fetch("./faust.json")).json();
 
     // Compile the DSP module from WebAssembly binary data
-    const dspModule = await WebAssembly.compileStreaming(await fetch("/dsp-module.wasm"));
+    // const dspModule = await WebAssembly.compileStreaming(await fetch("/dsp-module.wasm"));
+    const dspModule = await WebAssembly.compileStreaming(await fetch("/faust.wasm"));
+
 
     // Create an object representing Faust DSP with metadata and module
     /** @type {FaustDspDistribution} */
