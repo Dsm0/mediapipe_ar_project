@@ -1,6 +1,6 @@
 
 // https://ai.google.dev/static/edge/mediapipe/images/solutions/hand-landmarks.png
-const LANDMARKS = {
+const HAND_LANDMARKS = {
     DEFAULT: -1,
     WRIST: 0,
     THUMB_CMC: 1,
@@ -26,8 +26,23 @@ const LANDMARKS = {
 };
 
 
+// https://storage.googleapis.com/mediapipe-assets/documentation/mediapipe_face_landmark_fullsize.png
+const FACE_LANDMARKS = {
+    NOSE: 4,
+    LEFT_EYE: 145,
+    RIGHT_EYE: 374,
+    LEFT_CHEEK: 50,
+    RIGHT_CHEEK: 280,
+}
+
+const EYE_POINTS = {
+    RIGHT_EYE: [33, 246, 161, 160, 159, 158, 157, 173, 155, 154, 153, 145, 144, 163, 7],
+    LEFT_EYE: [374, 373, 372, 371, 370, 369, 368, 367, 374],
+}
+
+
 const HAND_STYLES = {
-    [LANDMARKS.WRIST]: (landmark) => {
+    [HAND_LANDMARKS.WRIST]: (landmark) => {
         let radius = Math.max(30 - ((landmark.value.z + 1) * 280), 0.2);
         return { color: "green", lineWidth: 4, radius, visibilityMin: .5, fillColor: "red" }
     }

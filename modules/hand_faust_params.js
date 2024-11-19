@@ -9,7 +9,7 @@ let maxZValue = -Infinity;
 
 const HAND_FAUST_PARAMS = {
     // DEFAULT: -1,
-    [LANDMARKS.WRIST]: (faustNode, value) => {
+    [HAND_LANDMARKS.WRIST]: (faustNode, value) => {
 
         minZValue = Math.min(minZValue, value.z);
         maxZValue = Math.max(maxZValue, value.z);
@@ -34,7 +34,7 @@ const HAND_FAUST_PARAMS = {
     //     }
     // },
 
-    [LANDMARKS.INDEX_FINGER_TIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.INDEX_FINGER_TIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/index_finger_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/index_finger_tip_y", value.y)
@@ -70,7 +70,7 @@ const HAND_FAUST_PARAMS = {
     //     }
     // },
 
-    [LANDMARKS.THUMB_MCP]: (faustNode, value) => {
+    [HAND_LANDMARKS.THUMB_MCP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/thumb_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/thumb_mcp_y", value.y)
@@ -78,35 +78,35 @@ const HAND_FAUST_PARAMS = {
         }
     },
 
-    [LANDMARKS.THUMB_IP]: (faustNode, value) => {
+    [HAND_LANDMARKS.THUMB_IP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/thumb_ip_x", value.x)
             faustNode.setParamValue("/hand_synth/thumb_ip_y", value.y)
             faustNode.setParamValue("/hand_synth/thumb_ip_z", value.z)
         }
     },
-    [LANDMARKS.THUMB_TIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.THUMB_TIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/thumb_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/thumb_tip_y", value.y)
             faustNode.setParamValue("/hand_synth/thumb_tip_z", value.z)
         }
     },
-    [LANDMARKS.INDEX_FINGER_MCP]: (faustNode, value) => {
+    [HAND_LANDMARKS.INDEX_FINGER_MCP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/index_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/index_mcp_y", value.y)
             faustNode.setParamValue("/hand_synth/index_mcp_z", value.z)
         }
     },
-    [LANDMARKS.MIDDLE_FINGER_TIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.MIDDLE_FINGER_TIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/middle_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/middle_tip_y", value.y)
             faustNode.setParamValue("/hand_synth/middle_tip_z", value.z)
         }
     },
-    [LANDMARKS.RING_FINGER_MCP]: (faustNode, value) => {
+    [HAND_LANDMARKS.RING_FINGER_MCP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_mcp_y", value.y)
@@ -114,7 +114,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
 
-    [LANDMARKS.RING_FINGER_PIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.RING_FINGER_PIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_pip_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_pip_y", value.y)
@@ -122,14 +122,14 @@ const HAND_FAUST_PARAMS = {
         }
     },
 
-    [LANDMARKS.RING_FINGER_DIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.RING_FINGER_DIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_dip_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_dip_y", value.y)
             faustNode.setParamValue("/hand_synth/ring_dip_z", value.z)
         }
     },
-    [LANDMARKS.RING_FINGER_TIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.RING_FINGER_TIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_tip_y", value.y)
@@ -137,14 +137,14 @@ const HAND_FAUST_PARAMS = {
         }
     },
 
-    [LANDMARKS.PINKY_MCP]: (faustNode, value) => {
+    [HAND_LANDMARKS.PINKY_MCP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/pinky_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/pinky_mcp_y", value.y)
             faustNode.setParamValue("/hand_synth/pinky_mcp_z", value.z)
         }
     },
-    [LANDMARKS.PINKY_PIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.PINKY_PIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/pinky_pip_x", value.x)
             faustNode.setParamValue("/hand_synth/pinky_pip_y", value.y)
@@ -152,7 +152,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
 
-    [LANDMARKS.PINKY_TIP]: (faustNode, value) => {
+    [HAND_LANDMARKS.PINKY_TIP]: (faustNode, value) => {
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/pinky_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/pinky_tip_y", value.y)

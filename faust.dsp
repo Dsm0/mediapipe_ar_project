@@ -4,16 +4,6 @@ declare author "Remi Chapelle";
 import("stdfaust.lib");
 import("finger_bindings.dsp");
 
-// Arpeggiator parameters
-// arp_speed = hslider("[11]arp_speed[unit:Hz]", 4, 0.1, 16, 0.1);
-// arp_pattern = ba.time : *(arp_speed) : int(_) % 4; // Creates a repeating pattern of 0,1,2,3
-
-// Base frequency calculation from wrist position
-// base_freq = wrist_x : it.remap(0, 1, 48, 48+12) : floor;
-
-// Arpeggiator note offsets (in semitones)
-// arp_offset = arp_pattern : ba.selectn(3, _, 0, 4, 7, 12); // Major chord pattern: root, third, fifth, octave
-
 // Final frequency calculation with arpeggiator
 // f = (base_freq + arp_offset) : ba.midikey2hz;
 
