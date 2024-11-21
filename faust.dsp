@@ -7,9 +7,7 @@ import("finger_bindings.dsp");
 // Final frequency calculation with arpeggiator
 // f = (base_freq + arp_offset) : ba.midikey2hz;
 
-// f = hslider("[00]freq[unit:Hz]",440,50,1000,0.1);
-f = wrist_x : it.remap(0, 1, 24, 24+1) : floor(_): ba.midikey2hz(_); 
-// f = 40;
+f = wrist_x : it.remap(0, 1, 24, 24+8) : floor(_): ba.midikey2hz(_); 
 
 // g = hslider("[01]gain",1,0,1,0.01);
 g = wrist_z;
@@ -61,9 +59,12 @@ orgue =
         + os.osc(f*16)  *p8*0.4
         + no.noise*nog;
 
-organ = orgue*g*t <: r;
+organ = orgue*g*t : filter <: r;
 
-echo_time = max(ring_tip_y*8000,0.01);
+// filter = fi.resonlp(f * (pinky_tip_y *24 : floor(_)), pinky_tip_y*80, 1);
+filter = fi.resonbp(f*2, middle_tip_x*100, 1);
+
+echo_time = max(ring_tip_y*800,0.01);
 echo_feedback = 0.2;
 echo_damping = 0.8;
 

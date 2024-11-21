@@ -52,25 +52,28 @@
       uniform vec3 rightEyePoints[15];
       varying vec2 vUv;
 
+      // This function checks if a given 2D point is inside a polygon defined by a set of 3D points.
+      // The polygon is assumed to be a simple polygon (not self-intersecting).
       bool isInsideEye(vec2 point, vec3 polygon[15]) {
-          bool inside = false;
-          int j = 14;
+          bool inside = false; // Initialize a flag to track if the point is inside the polygon
+          int j = 14; // Initialize the index of the previous point in the polygon
 
+          // Iterate over each point in the polygon
           for (int i = 0; i < 15; i++) {
-
-              // vec2 pi = vec2((polygon[i].x +1.0) * 0.5, -(polygon[i].y - 0.5) * 1.0);
-              // vec2 pj = vec2((polygon[j].x +1.0) * 0.5, -(polygon[j].y - 0.5) * 1.0);
-
+              // Convert the current and previous 3D points to 2D points
               vec2 pi = vec2((polygon[i].x), (polygon[i].y));
               vec2 pj = vec2((polygon[j].x), (polygon[j].y));
 
-
+              // Check if the point is on the edge formed by pi and pj
               if (((pi.y > point.y) != (pj.y > point.y)) &&
                   (point.x < (pj.x - pi.x) * (point.y - pi.y) / (pj.y - pi.y) + pi.x)) {
+                  // If the point is on the edge, toggle the inside flag
                   inside = !inside;
               }
+              // Move to the next point in the polygon
               j = i;
           }
+          // Return the final state of the inside flag
           return inside;
       }
 
@@ -89,22 +92,39 @@
 
           uv = 0.5 + (d * barrel * scale);
 
-          bool inEyeRegion = isInsideEye(uv, rightEyePoints);
+          bool inRightEyeRegion = isInsideEye(uv, rightEyePoints);
+          bool inLeftEyeRegion = isInsideEye(uv, leftEyePoints);
 
           vec4 tex = vec4(0.0);
+          tex = texture2D(tDiffuse, uv);
 
           if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-              tex = texture2D(tDiffuse, uv);
-              if (inEyeRegion) {
+              if (inRightEyeRegion) {
                   tex = vec4(0.0, 0.0, 0.0, 1.0);
               }
           }
+
+          // for (int i = 0; i < 15; i++) {
+          //     vec2 pi = vec2(rightEyePoints[i].x, rightEyePoints[i].y);
+          //     if (distance(uv, pi) < 0.01) {
+          //         tex = vec4(0.0, 0.0, 0.0, 1.0); // Black dot
+          //     }
+          // }
 
           // Draw an unfilled square border
           float border = 0.01; // Border thickness
           if ((abs(uv.x - 0.5) > 0.5 - border && abs(uv.x - 0.5) < 0.5) ||
               (abs(uv.y - 0.5) > 0.5 - border && abs(uv.y - 0.5) < 0.5)) {
               tex = vec4(1.0, 0.0, 0.0, 1.0); // Red border
+          }
+
+
+          for (float y = 0.25; y <= 0.75; y += 0.25) {
+              for (float x = 0.25; x <= 0.75; x += 0.25) {
+                  if (abs(uv.x - x) < 0.005 && abs(uv.y - y) < 0.005) {
+                      tex = vec4(1.0, 1.0, 1.0, 1.0); // White dot
+                  }
+              }
           }
 
 
@@ -153,14 +173,14 @@
 
       const scaler = {
         x: 1 * aspectRatio * 1.1,
-        y: 1 * 1.5,
+        y: 1,
         z: 1,
       };
 
       const pointScaler = {
-        x: 1 * aspectRatio * 1.5 * scaler.x,
-        y: 1 * 2.8 * scaler.y,
-        z: 1 * scaler.z,
+        x: scaler.x * 2.75,
+        y: scaler.y * 2.75,
+        z: scaler.z * 2.75,
       };
 
       let minZValue = Infinity;
@@ -307,47 +327,19 @@
             noseZ =
               noseZ.remap(-0.08561716973781586, 0.011626691557466984, 0, 1) *
               30;
-            // if noseZ is negative, (usually -0.1 to -0.4), they're really fucking close
-
-            let leftEyeZ = window.lastFaceLandmarks[FACE_LANDMARKS.LEFT_EYE].z;
-            let rightEyeZ =
-              window.lastFaceLandmarks[FACE_LANDMARKS.RIGHT_EYE].z;
-
-            leftEyeZ = leftEyeZ.remap(
-              -0.10710260272026062,
-              0.01594087854027748,
-              0,
-              1
-            );
-
-            // console.log(leftEyeZ);
-
-            // findZRange(leftEyeZ);
-            // scaleZ(leftEyeZ);
-
-            // if (leftEyeZ < 0) {
-            //   leftEyeZ = Math.abs(leftEyeZ) * 300;
-            // }
-
-            // console.log(noseZ);
 
             if (noseZ < 0) {
               noseZ = Math.abs(noseZ) * -300;
             }
-
-            // console.log(nosePoint.z);
-
-            // minZValue = Math.min(minZValue, nosePoint.z);
-            // maxZValue = Math.max(maxZValue, nosePoint.z);
-            // console.log(minZValue, maxZValue);
-            // const distortionValue = rightEyeZ;
             const distortionValue = 8.0;
 
             composer.passes[1].uniforms.distortion.value = distortionValue;
-            // composer.passes[1].uniforms.leftEyePoints.value =
-            //   window.lastLeftEyeLandmarks;
             composer.passes[1].uniforms.rightEyePoints.value =
               window.lastRightEyeLandmarks;
+
+            composer.passes[1].uniforms.leftEyePoints.value =
+              window.lastLeftEyeLandmarks;
+
             composer.render();
           } else {
             const time = Date.now() * 0.001; // Convert to seconds
@@ -404,7 +396,7 @@
           "pinky_tip",
         ];
 
-        return landmarks
+        let display = landmarks
           .map((landmark, i) => {
             return (
               `Hand ${handIndex + 1} - ${landmarkNames[i]}:` +
@@ -414,6 +406,8 @@
             );
           })
           .join("\n");
+
+        return display;
       }
 
       function onResults(results) {
@@ -508,24 +502,62 @@
               z: landmark.z * pointScaler.z || 0,
             }));
 
-            // mesh.position.set(
-            //   (point.x - 0.5) * 2,
-            //   -(point.y - 0.5) * 2,
-            //   point.z || 0
-            // );
-
             window.lastFaceLandmarks = transformedLandmarks;
             let rightEyePoints = [];
 
             for (let i = 0; i < EYE_POINTS.RIGHT_EYE.length; i++) {
+              let x = landmarks[EYE_POINTS.RIGHT_EYE[i]].x,
+                y = landmarks[EYE_POINTS.RIGHT_EYE[i]].y;
               rightEyePoints[i] = new THREE.Vector3(
-                transformedLandmarks[EYE_POINTS.RIGHT_EYE[i]].x,
-                1 - transformedLandmarks[EYE_POINTS.RIGHT_EYE[i]].y,
-                transformedLandmarks[EYE_POINTS.RIGHT_EYE[i]].z
+                (x - 0.5) * 0.8 + 0.5,
+                (1 - y - 0.5) * 0.7 + 0.5,
+                landmarks[EYE_POINTS.RIGHT_EYE[i]].z * pointScaler.z || 0
               );
             }
 
+            for (let i = 0; i < EYE_POINTS.LEFT_EYE.length; i++) {
+              let x = landmarks[EYE_POINTS.LEFT_EYE[i]].x,
+                y = landmarks[EYE_POINTS.LEFT_EYE[i]].y;
+              leftEyePoints[i] = new THREE.Vector3(
+                (x - 0.5) * 0.8 + 0.5,
+                (1 - y - 0.5) * 0.7 + 0.5,
+                landmarks[EYE_POINTS.LEFT_EYE[i]].z * pointScaler.z || 0
+              );
+            }
+
+            const referancePoints = [
+              new THREE.Vector3(0.25, 0.25, 0),
+              new THREE.Vector3(0.25, 0.5, 0),
+              new THREE.Vector3(0.25, 0.75, 0),
+
+              new THREE.Vector3(0.5, 0.25, 0),
+              new THREE.Vector3(0.5, 0.5, 0),
+              new THREE.Vector3(0.5, 0.75, 0),
+
+              new THREE.Vector3(0.75, 0.25, 0),
+              new THREE.Vector3(0.75, 0.5, 0),
+              new THREE.Vector3(0.75, 0.75, 0),
+            ];
+
+            for (let i = 0; i < referancePoints.length; i++) {
+              referancePoints[i].x =
+                (referancePoints[i].x - 0.5) * aspectRatio * 3.8 + 0.5;
+              referancePoints[i].y = (referancePoints[i].y - 0.5) * 3.8 + 0.5;
+              referancePoints[i].z = 0;
+            }
+
+            drawLandmarks(scene, referancePoints, {
+              color: 0x00ff00,
+              radius: 4,
+            });
+
+            drawLandmarks(scene, [leftEyePoints, rightEyePoints], {
+              color: 0x00ff00,
+              radius: 4,
+            });
+
             window.lastRightEyeLandmarks = rightEyePoints;
+            window.lastLeftEyeLandmarks = leftEyePoints;
             // console.log(rightEyePoints[0].x);
             // console.log(window.lastLeftEyeLandmarks);
 
@@ -535,11 +567,6 @@
             const centerPoint = new THREE.Vector3(0.5, 0.5, 0);
             const leftPoint = new THREE.Vector3(0.0, 0.5, 0);
             const rightPoint = new THREE.Vector3(1.0, 0.5, 0);
-            drawLandmarks(scene, [centerPoint, leftPoint, rightPoint], {
-              color: 0xff0000,
-              lineWidth: 1,
-              radius: 2,
-            });
 
             drawLandmarks(scene, transformedLandmarks, {
               color: 0x0000ff,
