@@ -45,6 +45,7 @@
 
     <script id="fragmentShader" type="x-shader/x-fragment">
       uniform sampler2D tDiffuse;
+      uniform sampler2D tPrevious;
       uniform float distortion;
       uniform float distortion2;
       uniform float scale;
@@ -95,11 +96,14 @@
           bool inRightEyeRegion = isInsideEye(uv, rightEyePoints);
           bool inLeftEyeRegion = isInsideEye(uv, leftEyePoints);
 
-          vec4 tex = vec4(0.0);
-          tex = texture2D(tDiffuse, uv);
+          vec4 tex = texture2D(tDiffuse, uv);
+          vec4 prevTex = texture2D(tPrevious, uv);
+
+          // tex = mix(tex, prevTex, 0.5);
 
           if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
               if (inLeftEyeRegion || inRightEyeRegion) {
+                  // Blend current frame with previous frame in eye regions
                   tex = vec4(0.0, 0.0, 0.0, 1.0);
               }
           }
@@ -127,8 +131,10 @@
               }
           }
 
+          // tex = prevTex;
 
-          gl_FragColor = tex;
+
+           gl_FragColor = tex;
       }
     </script>
 
@@ -233,6 +239,7 @@
       let LensDistortionShader = {
         uniforms: {
           tDiffuse: { value: null },
+          tPrevious: { value: null },
           distortion: { value: 0.3 },
           distortion2: { value: 0.8 },
           scale: { value: 0.8 },
@@ -313,16 +320,12 @@
       function animate() {
         requestAnimationFrame(animate);
 
-        const positions = plane.geometry.attributes.position;
-        let lastHandLandmarks = window.lastHandLandmarks;
-
         if (SHADERS_ENABLED) {
-          // Add animation for distortion
           if (
             window.lastFaceLandmarks !== undefined &&
             window.lastFaceLandmarks.length > 0
           ) {
-            const time = Date.now() * 0.001; // Convert to seconds
+            const time = Date.now() * 0.001;
             let noseZ = window.lastFaceLandmarks[0].z;
             noseZ =
               noseZ.remap(-0.08561716973781586, 0.011626691557466984, 0, 1) *
@@ -331,19 +334,30 @@
             if (noseZ < 0) {
               noseZ = Math.abs(noseZ) * -300;
             }
-            const distortionValue = 8.0;
 
+            const distortionValue = -1.0;
+
+            // Update shader uniforms
             composer.passes[1].uniforms.distortion.value = distortionValue;
             composer.passes[1].uniforms.rightEyePoints.value =
               window.lastRightEyeLandmarks;
-
             composer.passes[1].uniforms.leftEyePoints.value =
               window.lastLeftEyeLandmarks;
 
+            // Store current frame in previous frame texture
+            renderer.setRenderTarget(prevFrameTarget);
+            composer.render();
+
+            // Set previous frame texture in shader
+            composer.passes[1].uniforms.tPrevious.value =
+              prevFrameTarget.texture;
+
+            // Render final output
+            renderer.setRenderTarget(null);
             composer.render();
           } else {
-            const time = Date.now() * 0.001; // Convert to seconds
-            const distortionValue = 0.3 + Math.sin(time) * 0.2; // Oscillate between 0.1 and 0.5
+            const time = Date.now() * 0.001;
+            const distortionValue = 0.3 + Math.sin(time) * 0.2;
             composer.passes[1].uniforms.distortion.value = distortionValue;
             composer.render();
           }
@@ -594,6 +608,12 @@
       // aspectRatio = canvasCamera.h.width / canvasCamera.h.height;
 
       await attachFaustNode();
+
+      // Add after composer initialization
+      const prevFrameTarget = new THREE.WebGLRenderTarget(
+        window.innerWidth * window.devicePixelRatio,
+        window.innerHeight * window.devicePixelRatio
+      );
     </script>
   </head>
 
