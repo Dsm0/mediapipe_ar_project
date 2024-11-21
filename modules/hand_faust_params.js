@@ -7,6 +7,15 @@ function getScaledValue(value, sourceRangeMin, sourceRangeMax, targetRangeMin, t
 let minZValue = Infinity;
 let maxZValue = -Infinity;
 
+const adjustValue = (value) => {
+    value = scaleZ(value);
+    return {
+        x: value.x.clamp(0, 1),
+        y: value.y.clamp(0, 1),
+        z: value.z.clamp(0, 1)
+    }
+}
+
 const HAND_FAUST_PARAMS = {
     // DEFAULT: -1,
     [HAND_LANDMARKS.WRIST]: (faustNode, value) => {
@@ -14,12 +23,12 @@ const HAND_FAUST_PARAMS = {
         minZValue = Math.min(minZValue, value.z);
         maxZValue = Math.max(maxZValue, value.z);
 
-        let adjustedValue = scaleZ(value);
+        value = adjustValue(value);
 
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/wrist_x", adjustedValue.x)
-            faustNode.setParamValue("/hand_synth/wrist_y", adjustedValue.y)
-            faustNode.setParamValue("/hand_synth/wrist_z", adjustedValue.z)
+            faustNode.setParamValue("/hand_synth/wrist_x", value.x)
+            faustNode.setParamValue("/hand_synth/wrist_y", value.y)
+            faustNode.setParamValue("/hand_synth/wrist_z", value.z)
         }
     },
     // [LANDMARKS.THUMB_TIP]: (faustNode, value) => {
@@ -35,6 +44,8 @@ const HAND_FAUST_PARAMS = {
     // },
 
     [HAND_LANDMARKS.INDEX_FINGER_TIP]: (faustNode, value) => {
+
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/index_finger_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/index_finger_tip_y", value.y)
@@ -71,6 +82,7 @@ const HAND_FAUST_PARAMS = {
     // },
 
     [HAND_LANDMARKS.THUMB_MCP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/thumb_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/thumb_mcp_y", value.y)
@@ -79,6 +91,7 @@ const HAND_FAUST_PARAMS = {
     },
 
     [HAND_LANDMARKS.THUMB_IP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/thumb_ip_x", value.x)
             faustNode.setParamValue("/hand_synth/thumb_ip_y", value.y)
@@ -86,6 +99,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
     [HAND_LANDMARKS.THUMB_TIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/thumb_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/thumb_tip_y", value.y)
@@ -93,6 +107,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
     [HAND_LANDMARKS.INDEX_FINGER_MCP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/index_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/index_mcp_y", value.y)
@@ -100,6 +115,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
     [HAND_LANDMARKS.MIDDLE_FINGER_TIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/middle_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/middle_tip_y", value.y)
@@ -107,6 +123,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
     [HAND_LANDMARKS.RING_FINGER_MCP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_mcp_y", value.y)
@@ -115,6 +132,7 @@ const HAND_FAUST_PARAMS = {
     },
 
     [HAND_LANDMARKS.RING_FINGER_PIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_pip_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_pip_y", value.y)
@@ -123,6 +141,7 @@ const HAND_FAUST_PARAMS = {
     },
 
     [HAND_LANDMARKS.RING_FINGER_DIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_dip_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_dip_y", value.y)
@@ -130,6 +149,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
     [HAND_LANDMARKS.RING_FINGER_TIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/ring_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/ring_tip_y", value.y)
@@ -138,6 +158,7 @@ const HAND_FAUST_PARAMS = {
     },
 
     [HAND_LANDMARKS.PINKY_MCP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/pinky_mcp_x", value.x)
             faustNode.setParamValue("/hand_synth/pinky_mcp_y", value.y)
@@ -145,6 +166,7 @@ const HAND_FAUST_PARAMS = {
         }
     },
     [HAND_LANDMARKS.PINKY_PIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/pinky_pip_x", value.x)
             faustNode.setParamValue("/hand_synth/pinky_pip_y", value.y)
@@ -153,6 +175,7 @@ const HAND_FAUST_PARAMS = {
     },
 
     [HAND_LANDMARKS.PINKY_TIP]: (faustNode, value) => {
+        value = adjustValue(value);
         if (faustNode) {
             faustNode.setParamValue("/hand_synth/pinky_tip_x", value.x)
             faustNode.setParamValue("/hand_synth/pinky_tip_y", value.y)

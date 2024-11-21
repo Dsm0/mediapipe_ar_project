@@ -10,7 +10,7 @@ import("finger_bindings.dsp");
 f = wrist_x : it.remap(0, 1, 24, 24+8) : floor(_): ba.midikey2hz(_); 
 
 // g = hslider("[01]gain",1,0,1,0.01);
-g = wrist_z;
+g = wrist_z * 0.2;
 t = button("[10]gate") : si.smoo;
 // t = 1 : si.smoo;
 
@@ -74,5 +74,6 @@ multiecho = vgroup("stereo echo", multi(ef.echo(echo_time,echo_feedback,echo_dam
         multi(f,n) = f,multi(f,n-1);
     };
 
+preProc = organ <: _,_ : multiecho;
 
-process = organ <: _,_ : multiecho;
+process = preProc;
