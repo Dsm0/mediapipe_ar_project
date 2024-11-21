@@ -13,9 +13,9 @@
     <!-- three.js -->
 
     <script src="./modules/camera_utils.js"></script>
-    <script src="./modules/drawing_utils.js"></script>
     <script src="./modules/hands.js"></script>
     <script src="./modules/draw_style.js"></script>
+    <script src="./modules/drawing_utils.js"></script>
     <script src="./modules/hand_faust_params.js"></script>
     <script src="./modules/misc_utils.js"></script>
     <script src="./faust_index.js"></script>
@@ -99,7 +99,7 @@
           tex = texture2D(tDiffuse, uv);
 
           if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-              if (inRightEyeRegion) {
+              if (inLeftEyeRegion || inRightEyeRegion) {
                   tex = vec4(0.0, 0.0, 0.0, 1.0);
               }
           }
