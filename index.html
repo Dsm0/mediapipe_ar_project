@@ -52,6 +52,8 @@
       uniform float scale;
       uniform vec3 leftEyePoints[15];
       uniform vec3 rightEyePoints[15];
+      uniform vec3 facePoints[15];
+      uniform float time;
       varying vec2 vUv;
 
       // This function checks if a given 2D point is inside a polygon defined by a set of 3D points.
@@ -84,37 +86,22 @@
           vec2 d = uv - 0.5;
           float r2 = dot(d, d);
 
-          float barrel;
-
-          barrel = 1.0 + r2 * (distortion + distortion2 * r2);
-
-          // if (inEyeRegion) {
-          //     barrel = 1.0 + r2 * (distortion * 2.0 + distortion2 * r2);
-          // }
+          float barrel = 1.0 + r2 * (distortion + distortion2 * r2);
 
           uv = 0.5 + (d * barrel * scale);
 
           bool inRightEyeRegion = isInsideEye(uv, rightEyePoints);
           bool inLeftEyeRegion = isInsideEye(uv, leftEyePoints);
+          bool inEyeRegion = inRightEyeRegion || inLeftEyeRegion;
 
           vec4 tex = texture2D(tDiffuse, uv);
           vec4 prevTex = texture2D(tPrevious, uv);
 
           // tex = mix(tex, prevTex, 0.5);
 
-          if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-              if (inLeftEyeRegion || inRightEyeRegion) {
-                  // Blend current frame with previous frame in eye regions
-                  tex = vec4(0.0, 0.0, 0.0, 1.0);
-              }
+          if (inEyeRegion) {
+              barrel = 1.0 + r2 * (distortion2 * r2);
           }
-
-          // for (int i = 0; i < 15; i++) {
-          //     vec2 pi = vec2(rightEyePoints[i].x, rightEyePoints[i].y);
-          //     if (distance(uv, pi) < 0.01) {
-          //         tex = vec4(0.0, 0.0, 0.0, 1.0); // Black dot
-          //     }
-          // }
 
           // Draw an unfilled square border
           float border = 0.01; // Border thickness
@@ -127,7 +114,7 @@
           for (float y = 0.25; y <= 0.75; y += 0.25) {
               for (float x = 0.25; x <= 0.75; x += 0.25) {
                   if (abs(uv.x - x) < 0.005 && abs(uv.y - y) < 0.005) {
-                      tex = vec4(1.0, 1.0, 1.0, 1.0); // White dot
+                      tex = vec4(1.0, 1.0, sin(time), 1.0); // White dot
                   }
               }
           }
@@ -199,43 +186,10 @@
         console.log(minZValue, maxZValue);
       };
 
-      let leftEyePoints = [
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-      ];
+      let leftEyePoints = Array(15).fill(new THREE.Vector3(0, 0, 0));
+      let rightEyePoints = Array(15).fill(new THREE.Vector3(0, 0, 0));
 
-      let rightEyePoints = [
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-      ];
+      let facePoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
 
       let LensDistortionShader = {
         uniforms: {
@@ -246,6 +200,7 @@
           scale: { value: 0.8 },
           leftEyePoints: { value: leftEyePoints },
           rightEyePoints: { value: rightEyePoints },
+          time: { value: 0.0 },
         },
         vertexShader: document.getElementById("vertexShader").textContent,
         fragmentShader: document.getElementById("fragmentShader").textContent,
@@ -317,7 +272,10 @@
         return { scene, camera, renderer };
       }
 
-      // Modify the animate function
+      // Add this near the top of your module script, before any function definitions
+      const startTime = Date.now();
+
+      // Modify the animate function where it updates the time uniform
       function animate() {
         requestAnimationFrame(animate);
 
@@ -326,20 +284,15 @@
             window.lastFaceLandmarks !== undefined &&
             window.lastFaceLandmarks.length > 0
           ) {
-            const time = Date.now() * 0.001;
-            let noseZ = window.lastFaceLandmarks[0].z;
-            noseZ =
-              noseZ.remap(-0.08561716973781586, 0.011626691557466984, 0, 1) *
-              30;
+            // Replace the time calculation with elapsed time since page load
+            const time = (Date.now() - startTime) * 0.001; // Convert to seconds
+            composer.passes[1].uniforms.time.value = time;
 
-            if (noseZ < 0) {
-              noseZ = Math.abs(noseZ) * -300;
-            }
-
-            const distortionValue = -1.0;
+            const distortionValue = 0.0;
 
             // Update shader uniforms
             composer.passes[1].uniforms.distortion.value = distortionValue;
+            composer.passes[1].uniforms.distortion2.value = distortionValue;
             composer.passes[1].uniforms.rightEyePoints.value =
               window.lastRightEyeLandmarks;
             composer.passes[1].uniforms.leftEyePoints.value =
@@ -357,7 +310,7 @@
             renderer.setRenderTarget(null);
             composer.render();
           } else {
-            const time = Date.now() * 0.001;
+            const time = (Date.now() - startTime) * 0.001; // Convert to seconds
             const distortionValue = 0.3 + Math.sin(time) * 0.2;
             composer.passes[1].uniforms.distortion.value = distortionValue;
             composer.render();
@@ -540,7 +493,7 @@
               );
             }
 
-            const referancePoints = [
+            const referencePoints = [
               new THREE.Vector3(0.25, 0.25, 0),
               new THREE.Vector3(0.25, 0.5, 0),
               new THREE.Vector3(0.25, 0.75, 0),
@@ -554,14 +507,14 @@
               new THREE.Vector3(0.75, 0.75, 0),
             ];
 
-            for (let i = 0; i < referancePoints.length; i++) {
-              referancePoints[i].x =
-                (referancePoints[i].x - 0.5) * aspectRatio * 3.8 + 0.5;
-              referancePoints[i].y = (referancePoints[i].y - 0.5) * 3.8 + 0.5;
-              referancePoints[i].z = 0;
+            for (let i = 0; i < referencePoints.length; i++) {
+              referencePoints[i].x =
+                (referencePoints[i].x - 0.5) * aspectRatio * 3.8 + 0.5;
+              referencePoints[i].y = (referencePoints[i].y - 0.5) * 3.8 + 0.5;
+              referencePoints[i].z = 0;
             }
 
-            drawLandmarks(scene, referancePoints, {
+            drawLandmarks(scene, referencePoints, {
               color: 0x00ff00,
               radius: 4,
             });
@@ -573,15 +526,6 @@
 
             window.lastRightEyeLandmarks = rightEyePoints;
             window.lastLeftEyeLandmarks = leftEyePoints;
-            // console.log(rightEyePoints[0].x);
-            // console.log(window.lastLeftEyeLandmarks);
-
-            // findZRange(transformedLandmarks[FACE_LANDMARKS.RIGHT_EYE].z);
-
-            // Draw a single point at 0.5, 0.5
-            const centerPoint = new THREE.Vector3(0.5, 0.5, 0);
-            const leftPoint = new THREE.Vector3(0.0, 0.5, 0);
-            const rightPoint = new THREE.Vector3(1.0, 0.5, 0);
 
             drawLandmarks(scene, transformedLandmarks, {
               color: 0x0000ff,
