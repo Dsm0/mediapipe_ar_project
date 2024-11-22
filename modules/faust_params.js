@@ -31,17 +31,6 @@ const HAND_FAUST_PARAMS = {
             faustNode.setParamValue("/hand_synth/wrist_z", value.z)
         }
     },
-    // [LANDMARKS.THUMB_TIP]: (faustNode, value) => {
-    //     // console.log(value);
-
-    //     let freq = (value.y).clamp(0, 10);
-
-    //     if (faustNode) {
-    //         faustNode.setParamValue("/hand_synth/thumb_tip_x", value.x)
-    //         faustNode.setParamValue("/hand_synth/thumb_tip_y", value.y)
-    //         faustNode.setParamValue("/hand_synth/thumb_tip_z", value.z)
-    //     }
-    // },
 
     [HAND_LANDMARKS.INDEX_FINGER_TIP]: (faustNode, value) => {
 
@@ -185,10 +174,41 @@ const HAND_FAUST_PARAMS = {
 
 };
 
+
+
+
+
+
+
+const FACE_FAUST_PARAMS = {
+    // [FACE_LANDMARKS.NOSE]: (faustNode, value) => {
+    //     if (faustNode) {
+    //         faustNode.setParamValue("/hand_synth/nose_x", value.x)
+    //         faustNode.setParamValue("/hand_synth/nose_y", value.y)
+    //         faustNode.setParamValue("/hand_synth/nose_z", value.z)
+    //     }
+    // }
+}
+
+
+
+
+
+
+
+
+
+
+
+const FAUST_PARAMS = {
+    ...HAND_FAUST_PARAMS,
+    ...FACE_FAUST_PARAMS,
+}
+
 const updateFaustParams = (faustNode, landmarks) => {
     let i = 0;
     for (const landmark of landmarks) {
-        let updateFunc = HAND_FAUST_PARAMS[i];
+        let updateFunc = FAUST_PARAMS[i];
         if (updateFunc instanceof Function) {
             updateFunc(faustNode, landmark);
         }
