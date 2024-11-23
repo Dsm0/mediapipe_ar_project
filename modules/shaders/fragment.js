@@ -1,6 +1,7 @@
 const fragmentShader = /* glsl */ `
 uniform sampler2D tDiffuse;
 uniform sampler2D tPrevious;
+uniform sampler2D tVideo;
 uniform float distortion;
 uniform float distortion2;
 uniform float scale;
@@ -96,10 +97,17 @@ vec4 createEchoEffect(vec2 uv, vec4 currentFrame, vec4 previousFrame) {
 
   // Mix current frame with echo
   // Adjust these values to control echo intensity and decay
-  float echo_strength = 0.85; // Echo persistence (0-1)
+  float echo_strength = 0.5; // Echo persistence (0-1)
   float current_strength = 0.95; // Current frame intensity
 
   return mix(currentFrame * current_strength, echo, echo_strength);
+}
+
+vec4 filterWhite(vec4 point) {
+  if(point.r == 1.0 && point.g == 1.0 && point.b == 1.0) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+  }
+  return point;
 }
 
 void main() {
@@ -117,7 +125,13 @@ void main() {
     bool inLeftEyeRegion = isInsideEye(uv, leftEyePoints);
     bool inEyeRegion = inRightEyeRegion || inLeftEyeRegion;
 
+    vec2 videoUV = (uv - 0.5) * 1.28 + 0.5;
+    videoUV.y = (videoUV.y - 0.5) * 1.1 + 0.5;
+    vec4 videoTex = texture2D(tVideo, videoUV);
+
     vec4 tex = texture2D(tDiffuse, uv);
+    tex = filterWhite(tex);
+
     vec4 prevTex = texture2D(tPrevious, uv);
 
     // tex = mix(tex, prevTex, 0.5);
@@ -126,7 +140,9 @@ void main() {
     // shamelessly stolen from https://github.com/MaxBittker/shaderbooth/blob/0c48cf148479fc095a582fd63a705375841ae6cd/src/prefix.glsl#L393
     // big ups Max Bittker
 
-    if (false) {
+    vec3 color = vec3(0.0, 0.0, 0.0);
+
+    if (inEyeRegion) {
 
       vec3 wcolor = tex.rgb;
       float wmag = luma(wcolor);
@@ -142,8 +158,6 @@ void main() {
 
       vec3 scolor = getPrevious(uv + d * pixel * 10.).rgb;
 
-      vec3 color = wcolor;
-
       tex = vec4(color, 1.0);
 
       if (luma(wcolor) > luma(scolor) /*webcam darker*/
@@ -153,7 +167,9 @@ void main() {
 
       tex = vec4(color, 1.0);
 
+
       // barrel = 1.0 + r2 * (distortion2 * r2);
+      color = videoTex.rgb;
     }
 
     // Draw an unfilled square border
@@ -173,10 +189,13 @@ void main() {
         }
     }
 
-    vec4 echo_result = createEchoEffect(uv, tex, prevTex);
-    gl_FragColor = echo_result;
+    // vec4 echo_result = createEchoEffect(uv, tex, prevTex);
+    // gl_FragColor = echo_result;
 
-    // Optional: Add some decay to prevent infinite buildup
-    gl_FragColor *= 0.98;
+    // // Optional: Add some decay to prevent infinite buildup
+    // gl_FragColor *= 0.98;
+    // // gl_FragColor = videoTex + tex;
+
+    gl_FragColor = vec4(color + tex.rgb, 1.0);
 }
 `
