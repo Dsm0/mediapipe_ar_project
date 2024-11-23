@@ -88,12 +88,12 @@ vec4 getPrevious(vec2 uv) {
   return texture2D(tPrevious, uv);
 }
 
-vec4 createEchoEffect(vec2 uv, vec4 currentFrame, vec4 previousFrame) {
+vec4 createEchoEffect(vec2 uv, vec4 currentFrame) {
   // Create offset coordinates for echo trail
   vec2 echo_offset = (uv - 0.5) * 0.01;
 
   // Sample the previous frame with offset
-  vec4 echo = texture2D(tPrevious, uv + echo_offset);
+  vec4 echo = getPrevious(uv + echo_offset);
 
   // Mix current frame with echo
   // Adjust these values to control echo intensity and decay
@@ -133,6 +133,8 @@ void main() {
     tex = filterWhite(tex);
 
     vec4 prevTex = texture2D(tPrevious, uv);
+
+    tex = videoTex;
 
     // tex = mix(tex, prevTex, 0.5);
 
@@ -189,13 +191,13 @@ void main() {
         }
     }
 
-    // vec4 echo_result = createEchoEffect(uv, tex, prevTex);
+    // vec4 echo_result = createEchoEffect(uv, videoTex);
     // gl_FragColor = echo_result;
 
-    // // Optional: Add some decay to prevent infinite buildup
-    // gl_FragColor *= 0.98;
-    // // gl_FragColor = videoTex + tex;
+    gl_FragColor = prevTex;
 
-    gl_FragColor = vec4(color + tex.rgb, 1.0);
+    // Optional: Add some decay to prevent infinite buildup
+    // gl_FragColor *= 0.29;
+
 }
 `

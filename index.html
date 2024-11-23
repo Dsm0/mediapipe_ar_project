@@ -103,10 +103,22 @@
 
       let facePoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
 
+      let textureA = new THREE.WebGLRenderTarget(
+        window.innerWidth,
+        window.innerHeight,
+        { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }
+      );
+
+      let textureB = new THREE.WebGLRenderTarget(
+        window.innerWidth,
+        window.innerHeight,
+        { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }
+      );
+
       let LensDistortionShader = {
         uniforms: {
-          tDiffuse: { value: null },
-          tVideo: { value: null },
+          tDiffuse: { value: textureA.texture },
+          tVideo: { value: videoTexture },
           tPrevious: { value: null },
           distortion: { value: 0.3 },
           distortion2: { value: 0.8 },
@@ -143,6 +155,8 @@
       scene = threeScene.scene;
       camera = threeScene.camera;
       renderer = threeScene.renderer;
+
+      renderer.autoClear = false;
 
       renderer.getContext().enableVertexAttribArray(1);
 
@@ -204,7 +218,6 @@
             window.lastFaceLandmarks !== undefined &&
             window.lastFaceLandmarks.length > 0
           ) {
-            // Replace the time calculation with elapsed time since page load
             const time = (Date.now() - startTime) * 0.001; // Convert to seconds
             composer.passes[1].uniforms.time.value = time;
 
@@ -220,13 +233,18 @@
 
             composer.passes[1].uniforms.tVideo.value = videoTexture;
 
-            // Store current frame in previous frame texture
-            renderer.setRenderTarget(prevFrameTarget);
-            composer.render();
+            // Render to textureB
+            renderer.setRenderTarget(textureB);
+            renderer.render(scene, camera);
 
-            // Set previous frame texture in shader
-            composer.passes[1].uniforms.tPrevious.value =
-              prevFrameTarget.texture;
+            // Swap textures for feedback
+            var t = textureA;
+            textureA = textureB;
+            textureB = t;
+
+            // Update the plane material with the new texture
+            planeMaterial.map = textureB.texture;
+            composer.passes[1].uniforms.tPrevious.value = textureA.texture;
 
             // Render final output
             renderer.setRenderTarget(null);
