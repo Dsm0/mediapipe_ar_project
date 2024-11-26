@@ -10,7 +10,13 @@ uniform vec3 leftEyePoints[15];
 uniform vec3 rightEyePoints[15];
 uniform vec3 facePoints[15];
 uniform float time;
+uniform vec3 nosePosition;
 varying vec2 vUv;
+
+
+
+// some functiomns shamelessly stolen from https://github.com/MaxBittker/shaderbooth/blob/0c48cf148479fc095a582fd63a705375841ae6cd/src/prefix.glsl#L393
+// big ups Max Bittker
 
 float hue2rgb(float f1, float f2, float hue) {
   // http://www.chilliant.com/rgb2hsv.html
@@ -53,6 +59,11 @@ vec3 hsl2rgb(vec3 hsl) {
     rgb.b = hue2rgb(f1, f2, hsl.x - (1.0 / 3.0));
   }
   return rgb;
+}
+
+
+float map(float value, float min1, float max1, float min2, float max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
 
 vec3 hsl2rgb(float h, float s, float l) { return hsl2rgb(vec3(h, s, l)); }
@@ -134,44 +145,22 @@ void main() {
 
     vec4 prevTex = texture2D(tPrevious, uv);
 
-    tex = videoTex;
-
     // tex = mix(tex, prevTex, 0.5);
 
 
-    // shamelessly stolen from https://github.com/MaxBittker/shaderbooth/blob/0c48cf148479fc095a582fd63a705375841ae6cd/src/prefix.glsl#L393
-    // big ups Max Bittker
+    float noseFactor = (abs(nosePosition.z));
 
     vec3 color = vec3(0.0, 0.0, 0.0);
 
+    vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
+
     if (inEyeRegion) {
 
-      vec3 wcolor = tex.rgb;
-      float wmag = luma(wcolor);
-      wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
+      vec2 altUv = videoUV;
+      noseFactor = map(noseFactor, 0.0, 0.4, 0.9, 0.0);
+      altUv.x += (fract(sin(dot(altUv.xy, vec2(12.9898, 78.233))) * 43758.5453 * time) - 0.5) * noseFactor;
 
-      int n = 5;
-      float uB = luma(getPrevious(uv + pixel * vec2(0., 2.0)).rgb);
-      float dB = luma(getPrevious(uv + pixel * vec2(0, -2.0)).rgb);
-      float lB = luma(getPrevious(uv + pixel * vec2(-2.0, 0.)).rgb);
-      float rB = luma(getPrevious(uv + pixel * vec2(2.0, 0.)).rgb);
-
-      vec2 d = vec2(rB - lB, dB - uB);
-
-      vec3 scolor = getPrevious(uv + d * pixel * 10.).rgb;
-
-      tex = vec4(color, 1.0);
-
-      if (luma(wcolor) > luma(scolor) /*webcam darker*/
-       && luma(wcolor) * 0.7 + sin(time * 1.) * 0.1 < luma(scolor)) {
-        color = scolor;
-      }
-
-      tex = vec4(color, 1.0);
-
-
-      // barrel = 1.0 + r2 * (distortion2 * r2);
-      color = videoTex.rgb;
+      renderTex = texture2D(tVideo, altUv);
     }
 
     // Draw an unfilled square border
@@ -186,7 +175,7 @@ void main() {
     for (float y = 0.25; y <= 0.75; y += 0.25) {
         for (float x = 0.25; x <= 0.75; x += 0.25) {
             if (abs(uv.x - x) < 0.005 && abs(uv.y - y) < 0.005) {
-                tex = vec4(1.0, 1.0, 1.0, 1.0); // White dot
+                renderTex = vec4(1.0, 1.0, 1.0, 1.0); // White dot
             }
         }
     }

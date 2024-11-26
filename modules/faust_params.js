@@ -181,19 +181,44 @@ const HAND_FAUST_PARAMS = {
 
 
 const FACE_FAUST_PARAMS = {
-    // [FACE_LANDMARKS.NOSE]: (faustNode, value) => {
-    //     if (faustNode) {
-    //         faustNode.setParamValue("/hand_synth/nose_x", value.x)
-    //         faustNode.setParamValue("/hand_synth/nose_y", value.y)
-    //         faustNode.setParamValue("/hand_synth/nose_z", value.z)
-    //     }
-    // }
+    [FACE_LANDMARKS.NOSE]: (faustNode, value) => {
+        // console.log("NOSE", value);
+
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/nose_x", value.x)
+            faustNode.setParamValue("/hand_synth/nose_y", value.y)
+            faustNode.setParamValue("/hand_synth/nose_z", value.z)
+        }
+    },
+    [FACE_LANDMARKS.LEFT_EYE]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/left_eye_x", value.x)
+            faustNode.setParamValue("/hand_synth/left_eye_y", value.y)
+            faustNode.setParamValue("/hand_synth/left_eye_z", value.z)
+        }
+    },
+    [FACE_LANDMARKS.RIGHT_EYE]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/right_eye_x", value.x)
+            faustNode.setParamValue("/hand_synth/right_eye_y", value.y)
+            faustNode.setParamValue("/hand_synth/right_eye_z", value.z)
+        }
+    },
+    [FACE_LANDMARKS.LEFT_CHEEK]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/left_cheek_x", value.x)
+            faustNode.setParamValue("/hand_synth/left_cheek_y", value.y)
+            faustNode.setParamValue("/hand_synth/left_cheek_z", value.z)
+        }
+    },
+    [FACE_LANDMARKS.RIGHT_CHEEK]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/right_cheek_x", value.x)
+            faustNode.setParamValue("/hand_synth/right_cheek_y", value.y)
+            faustNode.setParamValue("/hand_synth/right_cheek_z", value.z)
+        }
+    },
 }
-
-
-
-
-
 
 
 

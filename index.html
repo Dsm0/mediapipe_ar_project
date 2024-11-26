@@ -129,6 +129,7 @@
           resolution: {
             value: new THREE.Vector2(window.innerWidth, window.innerHeight),
           },
+          nosePosition: { value: new THREE.Vector3(0, 0, 0) },
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -230,6 +231,13 @@
               window.lastRightEyeLandmarks;
             composer.passes[1].uniforms.leftEyePoints.value =
               window.lastLeftEyeLandmarks;
+
+            if (window.lastNoseLandmark !== null) {
+              composer.passes[1].uniforms.nosePosition.value =
+                window.lastNoseLandmark;
+
+              // console.log(composer.passes[1].uniforms.nosePosition.value.z);
+            }
 
             composer.passes[1].uniforms.tVideo.value = videoTexture;
 
@@ -401,6 +409,7 @@
       // Add face mesh results handler
       faceMesh.onResults((results) => {
         if (results.multiFaceLandmarks) {
+          updateFaustParamsForLandmarks(window.faustNode);
           for (const landmarks of results.multiFaceLandmarks) {
             // You can add face mesh visualization here similar to hand landmarks
 
@@ -432,6 +441,15 @@
                 landmarks[EYE_POINTS.LEFT_EYE[i]].z * pointScaler.z || 0
               );
             }
+
+            const noseLandmark = landmarks[FACE_LANDMARKS.NOSE]; // Replace NOSE_INDEX with the correct index for the nose
+            const transformedNose = new THREE.Vector3(
+              (noseLandmark.x - 0.5) * pointScaler.x + 0.5,
+              (noseLandmark.y - 0.5) * pointScaler.y + 0.5,
+              noseLandmark.z * pointScaler.z || 0
+            );
+            window.lastNoseLandmark = transformedNose;
+            // console.log("NOSE", transformedNose.z);
 
             const referencePoints = [
               new THREE.Vector3(0.25, 0.25, 0),
@@ -472,7 +490,13 @@
               lineWidth: 1,
               radius: 1,
             });
+
+            // console.log(landmarks);
+
+            updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
           }
+        } else {
+          updateFaustParamsNoLandmarks(window.faustNode);
         }
       });
 

@@ -2,7 +2,7 @@ declare name "hand_synth";
 declare author "Remi Chapelle";
 
 import("stdfaust.lib");
-import("finger_bindings.dsp");
+import("bindings.dsp");
 
 // Final frequency calculation with arpeggiator
 // f = (base_freq + arp_offset) : ba.midikey2hz;
