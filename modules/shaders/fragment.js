@@ -156,7 +156,8 @@ void main() {
     if (inEyeRegion) {
 
       vec2 altUv = videoUV;
-      noseFactor = map(noseFactor, 0.0, 0.4, 0.9, 0.0);
+      noseFactor = map(noseFactor, 0.0, 0.3, 0.9, 0.0);
+      noseFactor = min(noseFactor, 0.9);
       altUv.x += (fract(sin(dot(altUv.xy, vec2(12.9898, 78.233))) * 43758.5453 * time) - 0.5) * noseFactor;
 
       renderTex = texture2D(tVideo, altUv);
@@ -179,11 +180,11 @@ void main() {
         }
     }
 
-    gl_FragColor = videoTex;
+    vec4 echo = createEchoEffect(videoUV, videoTex);
+    gl_FragColor = echo;
+
+    // gl_FragColor = videoTex;
 
     // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-
-    // Optional: Add some decay to prevent infinite buildup
-    // gl_FragColor *= 0.29;
 }
 `
