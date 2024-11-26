@@ -122,14 +122,6 @@ vec4 filterWhite(vec4 point) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
-    vec2 d = uv - 0.5;
-    float r2 = dot(d, d);
-
-    vec2 pixel = 1.0 / resolution;
-
-    float barrel = 1.0 + r2 * (distortion + distortion2 * r2);
-
-    uv = 0.5 + (d * barrel * scale);
 
     bool inRightEyeRegion = isInsideEye(uv, rightEyePoints);
     bool inLeftEyeRegion = isInsideEye(uv, leftEyePoints);
@@ -144,47 +136,39 @@ void main() {
 
     vec4 prevTex = texture2D(tPrevious, uv);
 
-    // tex = mix(tex, prevTex, 0.5);
-
+    vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
 
     float noseFactor = (abs(nosePosition.z));
 
-    vec3 color = vec3(0.0, 0.0, 0.0);
+    vec2 pixel = 1.0 / resolution;
 
-    vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
+    vec3 wcolor = videoTex.rgb;
+    float wmag = luma(wcolor);
+    wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
 
-    if (inEyeRegion) {
+    int n = 5;
+    float factor = 20.0 * (noseFactor - 0.2);
+    float uB = luma(getPrevious(uv + pixel * vec2(0., factor)).rgb);
+    float dB = luma(getPrevious(uv + pixel * vec2(0, -factor)).rgb);
+    float lB = luma(getPrevious(uv + pixel * vec2(-factor, 0.)).rgb);
+    float rB = luma(getPrevious(uv + pixel * vec2(factor, 0.)).rgb);
 
-      vec2 altUv = videoUV;
-      noseFactor = map(noseFactor, 0.0, 0.3, 0.9, 0.0);
-      noseFactor = min(noseFactor, 0.9);
-      altUv.x += (fract(sin(dot(altUv.xy, vec2(12.9898, 78.233))) * 43758.5453 * time) - 0.5) * noseFactor;
+    vec2 d = vec2(rB - lB, dB - uB);
 
-      renderTex = texture2D(tVideo, altUv);
+
+    vec3 scolor = getPrevious(uv + d * pixel * 10.).rgb * 1.2;
+
+    vec3 color = videoTex.rgb;
+
+    if (luma(wcolor) > luma(scolor) /*webcam darker*/
+        && luma(wcolor) * 0.7 + sin(time * 1.) * 0.1 < luma(scolor)) {
+      color = scolor;
     }
 
-    // Draw an unfilled square border
-
-    // float border = 0.01; // Border thickness
-    // if ((abs(uv.x - 0.5) > 0.5 - border && abs(uv.x - 0.5) < 0.5) ||
-    //     (abs(uv.y - 0.5) > 0.5 - border && abs(uv.y - 0.5) < 0.5)) {
-    //     tex = vec4(1.0, 0.0, 0.0, 1.0); // Red border
-    // }
-
-
-    for (float y = 0.25; y <= 0.75; y += 0.25) {
-        for (float x = 0.25; x <= 0.75; x += 0.25) {
-            if (abs(uv.x - x) < 0.005 && abs(uv.y - y) < 0.005) {
-                renderTex = vec4(1.0, 1.0, 1.0, 1.0); // White dot
-            }
-        }
+    if(inEyeRegion) {
+      renderTex = mix(vec4(color, 1.0), vec4(color, 1.0), noseFactor - 0.4);
     }
 
-    vec4 echo = createEchoEffect(videoUV, videoTex);
-    gl_FragColor = echo;
-
-    // gl_FragColor = videoTex;
-
-    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_FragColor = renderTex;
 }
 `

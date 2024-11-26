@@ -70,7 +70,7 @@
       videoElement.classList.add("video-feed");
       document.body.appendChild(videoElement);
 
-      const SHADERS_ENABLED = true;
+      const RENDER_LANDMARKS = false;
 
       // Add these lines to create video texture and plane
       let aspectRatio = window.innerWidth / window.innerHeight;
@@ -201,6 +201,7 @@
           antialias: true,
           alpha: true,
         });
+
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
@@ -237,6 +238,7 @@
 
           planeMaterial.uniforms.nosePosition.value = window.lastNoseLandmark;
           planeMaterial.uniforms.tVideo.value = videoTexture;
+          console.log(window.lastNoseLandmark.z, "NOSE");
 
           renderer.setRenderTarget(textureB);
           renderer.render(in_scene, camera);
@@ -336,19 +338,21 @@
 
             window.lastHandLandmarks = transformedLandmarks;
 
-            drawConnectors(in_scene, transformedLandmarks, HAND_CONNECTIONS, {
-              color: 0x00ff00,
-              lineWidth: 2,
-            });
-
-            drawLandmarks(in_scene, transformedLandmarks, {
-              color: 0xffffff,
-              radius: 4,
-              // scaler: pointScaler * poin,
-            });
-
             updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
             ++i;
+
+            if (RENDER_LANDMARKS) {
+              drawConnectors(in_scene, transformedLandmarks, HAND_CONNECTIONS, {
+                color: 0x00ff00,
+                lineWidth: 2,
+              });
+
+              drawLandmarks(in_scene, transformedLandmarks, {
+                color: 0xffffff,
+                radius: 4,
+                // scaler: pointScaler * poin,
+              });
+            }
           }
         }
       }
@@ -450,47 +454,49 @@
             window.lastNoseLandmark = transformedNose;
             // console.log("NOSE", transformedNose.z);
 
-            const referencePoints = [
-              new THREE.Vector3(0.25, 0.25, 0),
-              new THREE.Vector3(0.25, 0.5, 0),
-              new THREE.Vector3(0.25, 0.75, 0),
+            updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
 
-              new THREE.Vector3(0.5, 0.25, 0),
-              new THREE.Vector3(0.5, 0.5, 0),
-              new THREE.Vector3(0.5, 0.75, 0),
+            if (RENDER_LANDMARKS) {
+              const referencePoints = [
+                new THREE.Vector3(0.25, 0.25, 0),
+                new THREE.Vector3(0.25, 0.5, 0),
+                new THREE.Vector3(0.25, 0.75, 0),
 
-              new THREE.Vector3(0.75, 0.25, 0),
-              new THREE.Vector3(0.75, 0.5, 0),
-              new THREE.Vector3(0.75, 0.75, 0),
-            ];
+                new THREE.Vector3(0.5, 0.25, 0),
+                new THREE.Vector3(0.5, 0.5, 0),
+                new THREE.Vector3(0.5, 0.75, 0),
 
-            for (let i = 0; i < referencePoints.length; i++) {
-              referencePoints[i].x =
-                (referencePoints[i].x - 0.5) * pointScaler.x + 0.5;
-              referencePoints[i].y =
-                (referencePoints[i].y - 0.5) * pointScaler.y + 0.5;
-              referencePoints[i].z = 0;
+                new THREE.Vector3(0.75, 0.25, 0),
+                new THREE.Vector3(0.75, 0.5, 0),
+                new THREE.Vector3(0.75, 0.75, 0),
+              ];
+
+              for (let i = 0; i < referencePoints.length; i++) {
+                referencePoints[i].x =
+                  (referencePoints[i].x - 0.5) * pointScaler.x + 0.5;
+                referencePoints[i].y =
+                  (referencePoints[i].y - 0.5) * pointScaler.y + 0.5;
+                referencePoints[i].z = 0;
+              }
+
+              drawLandmarks(in_scene, referencePoints, {
+                color: 0x00ff00,
+                radius: 4,
+              });
+
+              drawLandmarks(in_scene, [leftEyePoints, rightEyePoints], {
+                color: 0x00ff00,
+                radius: 4,
+              });
+
+              drawLandmarks(in_scene, transformedLandmarks, {
+                color: 0x0000ff,
+                lineWidth: 1,
+                radius: 1,
+              });
             }
 
-            drawLandmarks(in_scene, referencePoints, {
-              color: 0x00ff00,
-              radius: 4,
-            });
-
-            drawLandmarks(in_scene, [leftEyePoints, rightEyePoints], {
-              color: 0x00ff00,
-              radius: 4,
-            });
-
-            drawLandmarks(in_scene, transformedLandmarks, {
-              color: 0x0000ff,
-              lineWidth: 1,
-              radius: 1,
-            });
-
             // console.log(landmarks);
-
-            updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
           }
         } else {
           updateFaustParamsNoLandmarks(window.faustNode);
