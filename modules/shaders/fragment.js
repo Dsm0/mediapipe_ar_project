@@ -71,9 +71,11 @@ float luma(vec3 color) { return dot(color, vec3(0.299, 0.587, 0.114)); }
 
 // This function checks if a given 2D point is inside a polygon defined by a set of 3D points.
 // The polygon is assumed to be a simple polygon (not self-intersecting).
-bool isInsideEye(vec2 point, vec3 polygon[15]) {
-    bool inside = false; // Initialize a flag to track if the point is inside the polygon
+float distanceFromEdge(vec2 point, vec3 polygon[15]) {
+    float minDistance = 1e10; // Initialize with a large number
     int j = 14; // Initialize the index of the previous point in the polygon
+
+    bool inside = false;
 
     // Iterate over each point in the polygon
     for (int i = 0; i < 15; i++) {
@@ -81,18 +83,43 @@ bool isInsideEye(vec2 point, vec3 polygon[15]) {
         vec2 pi = vec2((polygon[i].x), (polygon[i].y));
         vec2 pj = vec2((polygon[j].x), (polygon[j].y));
 
-        // Check if the point is on the edge formed by pi and pj
+        // Calculate the distance from the point to the edge formed by pi and pj
+        vec2 edge = pj - pi;
+        vec2 toPoint = point - pi;
+        float edgeLength = length(edge);
+        float projection = dot(toPoint, edge) / edgeLength;
+        vec2 closestPoint;
+
+        if (projection < 0.0) {
+            closestPoint = pi;
+        } else if (projection > edgeLength) {
+            closestPoint = pj;
+        } else {
+            closestPoint = pi + projection * normalize(edge);
+        }
+
+
         if (((pi.y > point.y) != (pj.y > point.y)) &&
             (point.x < (pj.x - pi.x) * (point.y - pi.y) / (pj.y - pi.y) + pi.x)) {
             // If the point is on the edge, toggle the inside flag
             inside = !inside;
         }
+
+        float distance = length(point - closestPoint);
+        minDistance = min(minDistance, distance);
+
         // Move to the next point in the polygon
         j = i;
     }
-    // Return the final state of the inside flag
-    return inside;
+
+    // Return the minimum distance from the point to the polygon's edge
+    return inside ? -minDistance : minDistance;
 }
+
+
+
+
+
 
 vec4 getPrevious(vec2 uv) {
   return texture2D(tPrevious, uv);
@@ -123,8 +150,8 @@ vec4 filterWhite(vec4 point) {
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
-    bool inRightEyeRegion = isInsideEye(uv, rightEyePoints);
-    bool inLeftEyeRegion = isInsideEye(uv, leftEyePoints);
+    bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < 0.004;
+    bool inLeftEyeRegion = distanceFromEdge(uv, leftEyePoints) < 0.004;
     bool inEyeRegion = inRightEyeRegion || inLeftEyeRegion;
 
     vec2 videoUV = (uv - 0.5) * 1.28 + 0.5;
