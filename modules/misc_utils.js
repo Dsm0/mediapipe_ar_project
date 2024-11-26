@@ -29,12 +29,3 @@ Number.prototype.clamp = function (min, max) {
 Number.prototype.remap = function (inMin, inMax, outMin, outMax) {
     return (this - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 };
-
-
-const scaleZ = (point) => {
-    return {
-        x: point.x,
-        y: point.y,
-        z: (point.z * 1e6) - 0.15,
-    };
-};

@@ -105,3 +105,8 @@ pinky_dip_z = hslider("pinky_dip_z", 1, 0, 1, 0.01) : smoothingFunc;
 pinky_tip_x = hslider("pinky_tip_x", 1, 0, 1, 0.01) : smoothingFunc;
 pinky_tip_y = hslider("pinky_tip_y", 1, 0, 1, 0.01) : smoothingFunc;
 pinky_tip_z = hslider("pinky_tip_z", 1, 0, 1, 0.01) : smoothingFunc;
+
+
+nose_x = hslider("nose_x", 1, 0, 1, 0.01) : smoothingFunc;
+nose_y = hslider("nose_y", 1, 0, 1, 0.01) : smoothingFunc;
+nose_z = hslider("nose_z", 1, 0, 1, 0.01) : smoothingFunc;

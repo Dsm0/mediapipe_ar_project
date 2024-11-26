@@ -238,7 +238,6 @@
 
           planeMaterial.uniforms.nosePosition.value = window.lastNoseLandmark;
           planeMaterial.uniforms.tVideo.value = videoTexture;
-          console.log(window.lastNoseLandmark.z, "NOSE");
 
           renderer.setRenderTarget(textureB);
           renderer.render(in_scene, camera);
@@ -316,59 +315,59 @@
         return display;
       }
 
-      function onResults(results) {
-        // Modify the scene clearing to preserve the video plane
-        const objectsToRemove = in_scene.children.filter(
-          (child) => child !== plane
-        );
+      // function onResults(results) {
+      //   // Modify the scene clearing to preserve the video plane
+      //   const objectsToRemove = in_scene.children.filter(
+      //     (child) => child !== plane
+      //   );
 
-        objectsToRemove.forEach((object) => in_scene.remove(object));
+      //   objectsToRemove.forEach((object) => in_scene.remove(object));
 
-        if (results.multiHandLandmarks) {
-          updateFaustParamsForLandmarks(window.faustNode);
-          showDebugText(results);
-          let i = 0;
-          for (const landmarks of results.multiHandLandmarks) {
-            // Transform landmarks to match plane coordinates
-            const transformedLandmarks = landmarks.map((landmark) => ({
-              x: (landmark.x - 0.5) * pointScaler.x + 0.5,
-              y: (landmark.y - 0.5) * pointScaler.y + 0.5,
-              z: landmark.z * pointScaler.z || 0,
-            }));
+      //   if (results.multiHandLandmarks) {
+      //     updateFaustParamsForLandmarks(window.faustNode);
+      //     showDebugText(results);
+      //     let i = 0;
+      //     for (const landmarks of results.multiHandLandmarks) {
+      //       // Transform landmarks to match plane coordinates
+      //       const transformedLandmarks = landmarks.map((landmark) => ({
+      //         x: (landmark.x - 0.5) * pointScaler.x + 0.5,
+      //         y: (landmark.y - 0.5) * pointScaler.y + 0.5,
+      //         z: landmark.z * pointScaler.z || 0,
+      //       }));
 
-            window.lastHandLandmarks = transformedLandmarks;
+      //       window.lastHandLandmarks = transformedLandmarks;
 
-            updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
-            ++i;
+      //       updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
+      //       ++i;
 
-            if (RENDER_LANDMARKS) {
-              drawConnectors(in_scene, transformedLandmarks, HAND_CONNECTIONS, {
-                color: 0x00ff00,
-                lineWidth: 2,
-              });
+      //       if (RENDER_LANDMARKS) {
+      //         drawConnectors(in_scene, transformedLandmarks, HAND_CONNECTIONS, {
+      //           color: 0x00ff00,
+      //           lineWidth: 2,
+      //         });
 
-              drawLandmarks(in_scene, transformedLandmarks, {
-                color: 0xffffff,
-                radius: 4,
-                // scaler: pointScaler * poin,
-              });
-            }
-          }
-        }
-      }
+      //         drawLandmarks(in_scene, transformedLandmarks, {
+      //           color: 0xffffff,
+      //           radius: 4,
+      //           // scaler: pointScaler * poin,
+      //         });
+      //       }
+      //     }
+      //   }
+      // }
 
-      const hands = new Hands({
-        locateFile: (file) => `./modules/hands_files/${file}`,
-      });
+      // const hands = new Hands({
+      //   locateFile: (file) => `./modules/hands_files/${file}`,
+      // });
 
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-      });
+      // hands.setOptions({
+      //   maxNumHands: 1,
+      //   modelComplexity: 1,
+      //   minDetectionConfidence: 0.5,
+      //   minTrackingConfidence: 0.5,
+      // });
 
-      hands.onResults(onResults);
+      // hands.onResults(onResults);
 
       // Add this import after the existing mediapipe import
 
@@ -386,8 +385,9 @@
       const faceDetector = await FaceDetector.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
+          // modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
           delegate: "GPU",
-          model: "short",
+          // model: "short",
         },
         runningMode: "VIDEO",
       });
@@ -506,7 +506,7 @@
       // Modify your camera setup to process both hands and face
       const canvasCamera = new Camera(videoElement, {
         onFrame: async () => {
-          await hands.send({ image: videoElement });
+          // await hands.send({ image: videoElement });
           await faceMesh.send({ image: videoElement });
         },
         width: window.innerWidth,

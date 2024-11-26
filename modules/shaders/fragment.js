@@ -138,36 +138,38 @@ void main() {
 
     vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
 
-    float noseFactor = (abs(nosePosition.z));
+    float noseFactor = (abs(nosePosition.z) * 0.001);
 
     vec2 pixel = 1.0 / resolution;
 
-    vec3 wcolor = videoTex.rgb;
-    float wmag = luma(wcolor);
-    wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
-
-    int n = 5;
-    float factor = 20.0 * (noseFactor - 0.2);
-    float uB = luma(getPrevious(uv + pixel * vec2(0., factor)).rgb);
-    float dB = luma(getPrevious(uv + pixel * vec2(0, -factor)).rgb);
-    float lB = luma(getPrevious(uv + pixel * vec2(-factor, 0.)).rgb);
-    float rB = luma(getPrevious(uv + pixel * vec2(factor, 0.)).rgb);
-
-    vec2 d = vec2(rB - lB, dB - uB);
-
-
-    vec3 scolor = getPrevious(uv + d * pixel * 10.).rgb * 1.2;
-
-    vec3 color = videoTex.rgb;
-
-    if (luma(wcolor) > luma(scolor) /*webcam darker*/
-        && luma(wcolor) * 0.7 + sin(time * 1.) * 0.1 < luma(scolor)) {
-      color = scolor;
-    }
-
     if(inEyeRegion) {
+      vec3 wcolor = videoTex.rgb;
+      float wmag = luma(wcolor);
+      wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
+
+      int n = 5;
+      float factor = 20.0 * (noseFactor - 0.2);
+      float uB = luma(getPrevious(uv + pixel * vec2(0., factor)).rgb);
+      float dB = luma(getPrevious(uv + pixel * vec2(0, -factor)).rgb);
+      float lB = luma(getPrevious(uv + pixel * vec2(-factor, 0.)).rgb);
+      float rB = luma(getPrevious(uv + pixel * vec2(factor, 0.)).rgb);
+
+      vec2 d = vec2(rB - lB, dB - uB);
+
+
+      vec3 scolor = getPrevious(uv + d * pixel * 10.).rgb * 1.2;
+
+      vec3 color = videoTex.rgb;
+
+      if (luma(wcolor) > luma(scolor) /*webcam darker*/
+          && luma(wcolor) * 0.7 + sin(time * 1.) * 0.1 < luma(scolor)) {
+        color = scolor;
+      }
+
       renderTex = mix(vec4(color, 1.0), vec4(color, 1.0), noseFactor - 0.4);
     }
+
+    renderTex = createEchoEffect(uv, renderTex);
 
     gl_FragColor = renderTex;
 }

@@ -1,3 +1,12 @@
+const scaleZ = (point) => {
+    return {
+        x: point.x,
+        y: point.y,
+        z: Math.abs(point.z),
+    };
+};
+
+
 function getScaledValue(value, sourceRangeMin, sourceRangeMax, targetRangeMin, targetRangeMax) {
     var targetRange = targetRangeMax - targetRangeMin;
     var sourceRange = sourceRangeMax - sourceRangeMin;
@@ -12,7 +21,7 @@ const adjustValue = (value) => {
     return {
         x: value.x.clamp(0, 1),
         y: value.y.clamp(0, 1),
-        z: value.z.clamp(0, 1)
+        z: value.z
     }
 }
 
@@ -182,6 +191,7 @@ const HAND_FAUST_PARAMS = {
 
 const FACE_FAUST_PARAMS = {
     [FACE_LANDMARKS.NOSE]: (faustNode, value) => {
+        value = adjustValue(value);
         // console.log("NOSE", value);
 
         if (faustNode) {
