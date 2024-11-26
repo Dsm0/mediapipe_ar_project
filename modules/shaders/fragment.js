@@ -11,7 +11,6 @@ uniform vec3 rightEyePoints[15];
 uniform vec3 facePoints[15];
 uniform float time;
 uniform vec3 nosePosition;
-varying vec2 vUv;
 
 
 
@@ -122,7 +121,7 @@ vec4 filterWhite(vec4 point) {
 }
 
 void main() {
-    vec2 uv = vUv;
+    vec2 uv = gl_FragCoord.xy / resolution;
     vec2 d = uv - 0.5;
     float r2 = dot(d, d);
 
@@ -180,13 +179,11 @@ void main() {
         }
     }
 
-    // vec4 echo_result = createEchoEffect(uv, videoTex);
-    // gl_FragColor = echo_result;
+    gl_FragColor = videoTex;
 
-    gl_FragColor = prevTex;
+    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 
     // Optional: Add some decay to prevent infinite buildup
     // gl_FragColor *= 0.29;
-
 }
 `
