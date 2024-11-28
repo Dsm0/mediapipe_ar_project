@@ -61,8 +61,9 @@
       // https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands_solution_packed_assets.data
 
       import {
+        FaceLandmarker,
         FilesetResolver,
-        FaceDetector,
+        // FaceDetector,
       } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs";
 
       let scene, in_scene, camera, renderer;
@@ -70,7 +71,7 @@
       videoElement.classList.add("video-feed");
       document.body.appendChild(videoElement);
 
-      const RENDER_LANDMARKS = false;
+      const RENDER_LANDMARKS = true;
 
       // const initial_texture = new THREE.TextureLoader().load("./circles.jpg");
 
@@ -84,9 +85,10 @@
         z: 1,
       };
 
+      // TODO: fix pointScaler again :(
       const pointScaler = {
-        x: scaler.x * 3.37,
-        y: scaler.y * 3.37,
+        x: scaler.x * 3.5,
+        y: scaler.y * 3.85,
         z: scaler.z,
       };
 
@@ -323,7 +325,6 @@
       //   const objectsToRemove = in_scene.children.filter(
       //     (child) => child !== plane
       //   );
-
       //   objectsToRemove.forEach((object) => in_scene.remove(object));
 
       //   if (results.multiHandLandmarks) {
@@ -380,34 +381,64 @@
       // import { FaceMesh } from "@mediapipe/face_mesh";
       // import { FilesetResolver, FaceDetector } from "@mediapipe/tasks-vision";
 
-      // Remove the incorrect face detector initialization and replace with:
-      const vision = await FilesetResolver.forVisionTasks(
+      // // Remove the incorrect face detector initialization and replace with:
+      // const vision = await FilesetResolver.forVisionTasks(
+      //   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+      // );
+
+      // const faceDetector = await FaceDetector.createFromOptions(vision, {
+      //   baseOptions: {
+      //     modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
+      //     // modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+      //     delegate: "GPU",
+      //   },
+      //   runningMode: "VIDEO",
+      // });
+
+      // // TODO: swap face mesh to face detector so you can get eye points
+      // // would be fucking SIIIIIIIIIIIIIIIIIIIICK to pass into faust
+      // // https://codepen.io/mediapipe-preview/pen/OJBVQJm
+      // const faceMesh = new FaceMesh({
+      //   locateFile: (file) => {
+      //     return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+      //   },
+      // });
+
+      const filesetResolver = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
       );
+      const faceLandmarker = await FaceLandmarker.createFromOptions(
+        filesetResolver,
+        {
+          baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+            delegate: "GPU",
+          },
+          outputFaceBlendshapes: true,
+          runningMode: "VIDEO",
+          numFaces: 1,
+        }
+      );
+      // demosSection.classList.remove("invisible");
 
-      const faceDetector = await FaceDetector.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
-          // modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
-          delegate: "GPU",
-        },
-        runningMode: "VIDEO",
-      });
+      // console.log(faceLandmarker.detectForVideo(videoElement, Date.now()));
 
-      // TODO: swap face mesh to face detector so you can get eye points
-      // would be fucking SIIIIIIIIIIIIIIIIIIIICK to pass into faust
-      // https://codepen.io/mediapipe-preview/pen/OJBVQJm
-      const faceMesh = new FaceMesh({
-        locateFile: (file) => {
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-        },
-      });
+      // if (webcamRunning === true) {
+      // window.requestAnimationFrame(onResults);
+      // }
 
       // Add face mesh results handler
-      faceMesh.onResults((results) => {
-        if (results.multiFaceLandmarks) {
+      const onResults = (results) => {
+        // console.log("onResults", results);
+
+        const objectsToRemove = in_scene.children.filter(
+          (child) => child !== plane
+        );
+        objectsToRemove.forEach((object) => in_scene.remove(object));
+
+        if (results.faceLandmarks) {
           updateFaustParamsForLandmarks(window.faustNode);
-          for (const landmarks of results.multiFaceLandmarks) {
+          for (const landmarks of results.faceLandmarks) {
             // You can add face mesh visualization here similar to hand landmarks
 
             // console.log(
@@ -428,8 +459,8 @@
               let x = landmarks[EYE_POINTS.RIGHT_EYE[i]].x,
                 y = landmarks[EYE_POINTS.RIGHT_EYE[i]].y;
               rightEyePoints[i] = new THREE.Vector3(
-                (x - 0.5) * 0.8 + 0.5,
-                (1 - y - 0.5) * 0.7 + 0.5,
+                (x - 0.5) * 1.0 + 0.5,
+                (1 - y - 0.5) * 1.0 + 0.5,
                 landmarks[EYE_POINTS.RIGHT_EYE[i]].z * pointScaler.z || 0
               );
             }
@@ -438,8 +469,8 @@
               let x = landmarks[EYE_POINTS.LEFT_EYE[i]].x,
                 y = landmarks[EYE_POINTS.LEFT_EYE[i]].y;
               leftEyePoints[i] = new THREE.Vector3(
-                (x - 0.5) * 0.8 + 0.5,
-                (1 - y - 0.5) * 0.7 + 0.5,
+                (x - 0.5) * 1.0 + 0.5,
+                (1 - y - 0.5) * 1.0 + 0.5,
                 landmarks[EYE_POINTS.LEFT_EYE[i]].z * pointScaler.z || 0
               );
             }
@@ -506,13 +537,14 @@
         } else {
           updateFaustParamsNoLandmarks(window.faustNode);
         }
-      });
+      };
 
       // Modify your camera setup to process both hands and face
       const canvasCamera = new Camera(videoElement, {
         onFrame: async () => {
           // await hands.send({ image: videoElement });
-          await faceMesh.send({ image: videoElement });
+          let results = faceLandmarker.detectForVideo(videoElement, Date.now());
+          onResults(results);
         },
         width: window.innerWidth,
         height: window.innerHeight,
@@ -523,6 +555,7 @@
 
       // aspectRatio = canvasCamera.h.width / canvasCamera.h.height;
 
+      // TODO: add blendShapes to faust
       await attachFaustNode();
 
       // Add after composer initialization

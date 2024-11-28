@@ -170,9 +170,9 @@ void main() {
 
     vec2 videoUV = (uv - 0.5) * 1.28 + 0.5;
     videoUV.y = (videoUV.y - 0.5) * 1.1 + 0.5;
-    vec4 videoTex = texture2D(tVideo, videoUV);
+    vec4 videoTex = texture2D(tVideo, uv);
 
-    vec4 tex = texture2D(tDiffuse, uv);
+    vec4 tex = texture2D(tDiffuse,uv);
     tex = filterWhite(tex);
 
     vec4 prevTex = texture2D(tPrevious, uv);
@@ -183,8 +183,7 @@ void main() {
 
     vec2 pixel = 1.0 / resolution;
 
-    if (inEyeRegion) {
-      renderTex = applyChromaticAberration(videoUV, 0.03);
+    if(inEyeRegion) {
       vec3 wcolor = renderTex.rgb;
       float wmag = luma(wcolor);
       wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
