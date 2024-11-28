@@ -10,7 +10,7 @@ import("bindings.dsp");
 f = nose_x : it.remap(0, 1, 24, 24+8) : floor(_): ba.midikey2hz(_); 
 
 // g = hslider("[01]gain",1,0,1,0.01);
-g = nose_z : it.remap(-3, 0, 0, 1) * 0.7;
+g = nose_z : it.remap(0.07, 0.3, 0, 1) * 0.7;
 t = button("[10]gate") : si.smoo;
 // t = 1 : si.smoo;
 

@@ -147,6 +147,20 @@ vec4 filterWhite(vec4 point) {
   return point;
 }
 
+vec4 applyChromaticAberration(vec2 uv, float intensity) {
+    // Shift the red, green, and blue channels slightly in different directions
+    vec2 redOffset = vec2(intensity, 0.0);
+    vec2 greenOffset = vec2(0.0, intensity);
+    vec2 blueOffset = vec2(-intensity, -intensity);
+
+    // Sample the texture with the offsets
+    float r = texture2D(tDiffuse, uv + redOffset).r;
+    float g = texture2D(tDiffuse, uv + greenOffset).g;
+    float b = texture2D(tDiffuse, uv + blueOffset).b;
+
+    return vec4(r, g, b, 1.0);
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
@@ -165,17 +179,18 @@ void main() {
 
     vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
 
-    float noseFactor = (abs(nosePosition.z) * 0.001);
+    float noseFactor = (abs(nosePosition.z) * 10.0);
 
     vec2 pixel = 1.0 / resolution;
 
-    if(inEyeRegion) {
-      vec3 wcolor = videoTex.rgb;
+    if (inEyeRegion) {
+      renderTex = applyChromaticAberration(videoUV, 0.03);
+      vec3 wcolor = renderTex.rgb;
       float wmag = luma(wcolor);
       wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
 
       int n = 5;
-      float factor = 20.0 * (noseFactor - 0.2);
+      float factor = 20.0;
       float uB = luma(getPrevious(uv + pixel * vec2(0., factor)).rgb);
       float dB = luma(getPrevious(uv + pixel * vec2(0, -factor)).rgb);
       float lB = luma(getPrevious(uv + pixel * vec2(-factor, 0.)).rgb);
@@ -183,20 +198,21 @@ void main() {
 
       vec2 d = vec2(rB - lB, dB - uB);
 
-
       vec3 scolor = getPrevious(uv + d * pixel * 10.).rgb * 1.2;
 
       vec3 color = videoTex.rgb;
 
       if (luma(wcolor) > luma(scolor) /*webcam darker*/
-          && luma(wcolor) * 0.7 + sin(time * 1.) * 0.1 < luma(scolor)) {
+          && luma(wcolor) * 0.7 + sin(time * 0.1) * 0.01 < luma(scolor)) {
         color = scolor;
       }
 
-      renderTex = mix(vec4(color, 1.0), vec4(color, 1.0), noseFactor - 0.4);
+      renderTex = vec4(color, 1.0);
     }
 
-    renderTex = createEchoEffect(uv, renderTex);
+    // renderTex = createEchoEffect(uv, renderTex);
+
+    // Apply chromatic aberration to the final render texture
 
     gl_FragColor = renderTex;
 }

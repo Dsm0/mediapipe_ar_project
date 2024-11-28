@@ -72,6 +72,8 @@
 
       const RENDER_LANDMARKS = false;
 
+      // const initial_texture = new THREE.TextureLoader().load("./circles.jpg");
+
       // Add these lines to create video texture and plane
       let aspectRatio = window.innerWidth / window.innerHeight;
       let composer;
@@ -237,6 +239,7 @@
             window.lastLeftEyeLandmarks;
 
           planeMaterial.uniforms.nosePosition.value = window.lastNoseLandmark;
+
           planeMaterial.uniforms.tVideo.value = videoTexture;
 
           renderer.setRenderTarget(textureB);
@@ -387,11 +390,13 @@
           modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
           // modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
           delegate: "GPU",
-          // model: "short",
         },
         runningMode: "VIDEO",
       });
 
+      // TODO: swap face mesh to face detector so you can get eye points
+      // would be fucking SIIIIIIIIIIIIIIIIIIIICK to pass into faust
+      // https://codepen.io/mediapipe-preview/pen/OJBVQJm
       const faceMesh = new FaceMesh({
         locateFile: (file) => {
           return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
