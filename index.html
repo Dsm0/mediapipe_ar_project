@@ -249,6 +249,10 @@
 
           planeMaterial.uniforms.nosePosition.value = window.lastNoseLandmark;
 
+          // console.log(
+          //   Math.abs(window.lastNoseLandmark.z).remap(0.04, 0.3, 0.0, 1.0)
+          // );
+
           planeMaterial.uniforms.tVideo.value = videoTexture;
 
           renderer.setRenderTarget(textureB);

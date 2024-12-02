@@ -7,10 +7,10 @@ import("bindings.dsp");
 // Final frequency calculation with arpeggiator
 // f = (base_freq + arp_offset) : ba.midikey2hz;
 
-f = eyelookin_left : it.remap(0, 1, 24, 24+8) : floor(_): ba.midikey2hz(_); 
+f = (eyelookin_left*0.5 + 0.5 - eyelookout_left*0.5) : it.remap(0, 1, 24, 24+16) : floor(_): ba.midikey2hz(_); 
 
 // g = hslider("[01]gain",1,0,1,0.01);
-g = nose_z : it.remap(0.07, 0.3, 0, 1) * 0.7;
+g = abs(nose_z) : it.remap(0.04, 0.3, 0, 1) * 0.3;
 t = button("[10]gate") : si.smoo;
 // t = 1 : si.smoo;
 

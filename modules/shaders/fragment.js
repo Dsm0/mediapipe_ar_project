@@ -183,7 +183,7 @@ void main() {
 
     vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
 
-    float noseFactor = (abs(nosePosition.z) * 10.0);
+    float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0);
 
     vec2 pixel = 1.0 / resolution;
 
@@ -210,7 +210,7 @@ void main() {
         color = scolor;
       }
 
-      renderTex = vec4(color, 1.0);
+      renderTex = mix(videoTex, vec4(color, 1.0), noseFactor);
     }
 
     // Draw white dot at left iris position
@@ -230,6 +230,7 @@ void main() {
     // renderTex = createEchoEffect(uv, renderTex);
 
     // Apply chromatic aberration to the final render texture
+
 
     gl_FragColor = renderTex;
 }
