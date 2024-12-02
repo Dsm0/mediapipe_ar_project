@@ -10,7 +10,7 @@ import("bindings.dsp");
 f = (eyelookin_left*0.5 + 0.5 - eyelookout_left*0.5) : it.remap(0, 1, 24, 24+16) : floor(_): ba.midikey2hz(_); 
 
 // g = hslider("[01]gain",1,0,1,0.01);
-g = abs(nose_z) : it.remap(0.04, 0.3, 0, 1) * 0.3;
+g = noseFactor : min(1);
 
 blink = (eyeblink_left+eyeblink_right);
 t = button("[10]gate") : _ - blink : si.smoo;
@@ -66,7 +66,7 @@ organ = orgue*g*t : filter <: r;
 // filter = fi.resonlp(f * (pinky_tip_y *24 : floor(_)), pinky_tip_y*80, 1);
 filter = fi.resonbp(f*2, middle_tip_x*100, 1);
 
-echo_time = max(ring_tip_y*800,0.01);
+echo_time = max(800 - noseFactor*700,0.01);
 echo_feedback = 0.2;
 echo_damping = 0.8;
 

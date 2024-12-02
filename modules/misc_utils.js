@@ -29,3 +29,27 @@ Number.prototype.clamp = function (min, max) {
 Number.prototype.remap = function (inMin, inMax, outMin, outMax) {
     return (this - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 };
+
+
+
+
+
+// https://www.flong.com/archive/texts/code/shapers_poly/
+function doubleOddPolynomialSeat(x, a, b, n) {
+    const epsilon = 0.00001;
+    const min_param_a = 0.0 + epsilon;
+    const max_param_a = 1.0 - epsilon;
+    const min_param_b = 0.0;
+    const max_param_b = 1.0;
+    a = Math.min(max_param_a, Math.max(min_param_a, a));
+    b = Math.min(max_param_b, Math.max(min_param_b, b));
+
+    const p = 2.0 * n + 1.0;
+    let y = 0.0;
+    if (x <= a) {
+        y = b - b * Math.pow(1.0 - x / a, p);
+    } else {
+        y = b + (1.0 - b) * Math.pow((x - a) / (1.0 - a), p);
+    }
+    return y;
+}

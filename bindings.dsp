@@ -111,6 +111,8 @@ nose_x = hslider("nose_x", 1, 0, 1, 0.01) : smoothingFunc;
 nose_y = hslider("nose_y", 1, 0, 1, 0.01) : smoothingFunc;
 nose_z = hslider("nose_z", 1, 0, 1, 0.01) : smoothingFunc;
 
+noseFactor = hslider("noseFactor", 0, 0, 1, 0.01) : smoothingFunc;
+
 left_iris_x = hslider("left_iris_x", 1, 0, 1, 0.01) : smoothingFunc;
 left_iris_y = hslider("left_iris_y", 1, 0, 1, 0.01) : smoothingFunc;
 left_iris_z = hslider("left_iris_z", 1, 0, 1, 0.01) : smoothingFunc;

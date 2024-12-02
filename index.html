@@ -147,7 +147,7 @@
         resolution: {
           value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
-        nosePosition: { value: new THREE.Vector3(0, 0, 0) },
+        noseFactor: { value: 0.0 },
       };
 
       const planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10);
@@ -247,7 +247,13 @@
           planeMaterial.uniforms.leftIris.value = window.lastLeftIrisLandmark;
           planeMaterial.uniforms.rightIris.value = window.lastRightIrisLandmark;
 
-          planeMaterial.uniforms.nosePosition.value = window.lastNoseLandmark;
+          // float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0) + 0.0;
+          // TODO: do scaling + calculations for this outside of faust + glsl
+          // so you can control + test it easier
+
+          // why the fuck does the js style put each value on a new line
+
+          planeMaterial.uniforms.noseFactor.value = window.lastNoseFactor;
 
           // console.log(
           //   Math.abs(window.lastNoseLandmark.z).remap(0.04, 0.3, 0.0, 1.0)
@@ -488,6 +494,7 @@
           // TODO: update debug text function for blend shapes
           // to resemble https://codepen.io/mediapipe-preview/pen/OJBVQJm?editors=1010
           updateFaustParamsForLandmarks(window.faustNode);
+
           for (const landmarks of results.faceLandmarks) {
             // You can add face mesh visualization here similar to hand landmarks
 
@@ -535,14 +542,28 @@
               (noseLandmark.y - 0.5) * pointScaler.y + 0.5,
               noseLandmark.z * aspectRatio || 0 // for some dubm fucking reason z scales with aspect ratio
             );
+            // window.lastNoseLandmark = transformedNose;
 
-            window.lastNoseLandmark = transformedNose;
+            let noseFactor = Math.abs(transformedNose.z).remap(
+              0.04,
+              0.3,
+              0.0,
+              1.0
+            );
+            noseFactor = doubleOddPolynomialSeat(noseFactor, 0.7, 0.003, 8.0);
+            window.lastNoseFactor = noseFactor;
+            // console.log(noseFactor);
 
-            updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
+            updateFaustParamsFace(window.faustNode, landmarks); // Keep original landmarks for Faust params
             updateFaustParamsBlendshapes(
               window.faustNode,
               results.faceBlendshapes
             );
+
+            updateFaustParamsUnique(window.faustNode, {
+              index: UNIQUE_CATEGORIES.NOSEFACTOR,
+              value: noseFactor,
+            });
 
             if (RENDER_LANDMARKS) {
               const referencePoints = [

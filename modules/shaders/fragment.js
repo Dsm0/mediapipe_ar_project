@@ -14,7 +14,7 @@ uniform vec3 rightIris;
 
 uniform vec3 facePoints[15];
 uniform float time;
-uniform vec3 nosePosition;
+uniform float noseFactor;
 
 bool invert = false;
 
@@ -199,24 +199,24 @@ void main() {
 
     float eyeScale = 1.0;
     uv = (uv - 0.5) * eyeScale + 0.5;
-
     // uv.y -= 0.2;
 
     vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
 
-    float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0) + 0.2;
-    float mixFactor = doubleOddPolynomialSeat(noseFactor, 0.7, 0.003, 8.0);
+    float mixFactor = noseFactor;
+    // float noseFactor = map(abs(noseFactor), 0.04, 0.3, 0.0, 1.0) + 0.0;
+    // float mixFactor = doubleOddPolynomialSeat(noseFactor, 0.7, 0.003, 8.0);
 
 
     if(mixFactor > 1.2) {
-      uv = min((startingUV - 0.5) * 1.0 + 0.5, uv);
+      uv = min((startingUV - 0.5) * 1.2 + 0.5, uv);
     } else {
       renderTex = renderTex ;
     }
 
 
-    bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < mixFactor*0.1;
-    bool inLeftEyeRegion = distanceFromEdge(uv, leftEyePoints) < mixFactor*0.1;
+    bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < mixFactor*0.2;
+    bool inLeftEyeRegion = distanceFromEdge(uv, leftEyePoints) < mixFactor*0.2;
     bool inEyeRegion = inRightEyeRegion || inLeftEyeRegion;
 
     vec4 videoTex = texture2D(tVideo, uv);
@@ -227,7 +227,6 @@ void main() {
     vec4 prevTex = texture2D(tPrevious, uv);
 
     float ff = pow(2.0,2.0);
-
 
 
     vec2 pixel = 1.0 / resolution;
@@ -250,25 +249,21 @@ void main() {
       vec3 color = videoTex.rgb;
 
       if (luma(wcolor) > luma(scolor) /*webcam darker*/
-          && luma(wcolor) * 0.7 + sin(time * 0.1) * 0.01 < luma(scolor)) {
+          && luma(wcolor) * 0.8 + sin(time * 0.1) * 0.01 < luma(scolor)) {
         color = scolor;
       }
 
-      renderTex = mix(videoTex, vec4(color, 1.0), mixFactor);
+      renderTex = mix(videoTex, vec4(color, 1.0), mixFactor+0.5);
     }
 
     // Draw white dot at left iris position
-    float dotRadius = 0.003;
+    float dotRadius = 0.0007;
     if (distance(uv, leftIris.xy) < dotRadius) {
         renderTex = vec4(1.0, 1.0, 1.0, 1.0);
     }
-
-    float dotRadius2 = 0.003;
-    if (distance(uv, rightIris.xy) < dotRadius2) {
+    if (distance(uv, rightIris.xy) < dotRadius) {
         renderTex = vec4(1.0, 1.0, 1.0, 1.0);
     }
-
-
 
     gl_FragColor = renderTex * 0.9;
 }

@@ -255,7 +255,6 @@ const BLENDSHAPE_FAUST_PARAMS = {
     },
     [BLENDSHAPE_CATEGORIES.EYEBLINKLEFT]: (faustNode, value) => {
         if (faustNode) {
-            console.log("EYEBLINKLEFT", value);
             faustNode.setParamValue("/hand_synth/eyeblink_left", value)
         }
     },
@@ -473,6 +472,21 @@ const BLENDSHAPE_FAUST_PARAMS = {
 }
 
 
+const UNIQUE_CATEGORIES = {
+    NOSEFACTOR: 0,
+}
+
+const UNIQUE_FAUST_PARAMS = {
+    [UNIQUE_CATEGORIES.NOSEFACTOR]: (faustNode, value) => {
+        if (faustNode) {
+            value = value.value.clamp(0, 100);
+            console.log(value);
+
+            faustNode.setParamValue("/hand_synth/noseFactor", value)
+        }
+    }
+}
+
 
 
 
@@ -481,9 +495,13 @@ const FAUST_PARAMS = {
     ...HAND_FAUST_PARAMS,
     ...FACE_FAUST_PARAMS,
     ...BLENDSHAPE_FAUST_PARAMS,
+    ...UNIQUE_FAUST_PARAMS,
 }
 
-const updateFaustParams = (faustNode, landmarks) => {
+
+// redundant functions I Don't Care
+
+const updateFaustParamsFace = (faustNode, landmarks) => {
     let i = 0;
     for (const landmark of landmarks) {
         let updateFunc = FACE_FAUST_PARAMS[i];
@@ -493,6 +511,13 @@ const updateFaustParams = (faustNode, landmarks) => {
         ++i;
     }
 };
+
+const updateFaustParamsUnique = (faustNode, unique) => {
+    let updateFunc = UNIQUE_FAUST_PARAMS[unique.index];
+    if (updateFunc instanceof Function) {
+        updateFunc(faustNode, unique);
+    }
+}
 
 const updateFaustParamsBlendshapes = (faustNode, blendShapes) => {
     let categories = blendShapes[0].categories;
@@ -516,7 +541,4 @@ const updateFaustParamsForLandmarks = (faustNode) => {
         faustNode.setParamValue("/hand_synth/gate", 1)
     }
 };
-
-
-
 
