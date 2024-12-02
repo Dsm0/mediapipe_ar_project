@@ -8,6 +8,10 @@ uniform float scale;
 uniform vec2 resolution;
 uniform vec3 leftEyePoints[15];
 uniform vec3 rightEyePoints[15];
+
+uniform vec3 leftIris;
+uniform vec3 rightIris;
+
 uniform vec3 facePoints[15];
 uniform float time;
 uniform vec3 nosePosition;
@@ -208,6 +212,20 @@ void main() {
 
       renderTex = vec4(color, 1.0);
     }
+
+    // Draw white dot at left iris position
+    float dotRadius = 0.003;
+    if (distance(uv, leftIris.xy) < dotRadius) {
+        renderTex = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+
+    float dotRadius2 = 0.003;
+    if (distance(uv, rightIris.xy) < dotRadius2) {
+        renderTex = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+
+
+
 
     // renderTex = createEchoEffect(uv, renderTex);
 

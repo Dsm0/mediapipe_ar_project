@@ -139,6 +139,10 @@
         scale: { value: 0.8 },
         leftEyePoints: { value: leftEyePoints },
         rightEyePoints: { value: rightEyePoints },
+
+        leftIris: { value: new THREE.Vector3(0, 0, 0) },
+        rightIris: { value: new THREE.Vector3(0, 0, 0) },
+
         time: { value: 0.0 },
         resolution: {
           value: new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -240,6 +244,9 @@
           planeMaterial.uniforms.leftEyePoints.value =
             window.lastLeftEyeLandmarks;
 
+          planeMaterial.uniforms.leftIris.value = window.lastLeftIrisLandmark;
+          planeMaterial.uniforms.rightIris.value = window.lastRightIrisLandmark;
+
           planeMaterial.uniforms.nosePosition.value = window.lastNoseLandmark;
 
           planeMaterial.uniforms.tVideo.value = videoTexture;
@@ -270,6 +277,7 @@
 
       const showDebugText = (results) => {
         let debugText = "";
+
         if (results.multiHandLandmarks.length === 0) {
           debugText = "No hands detected";
           updateFaustParamsNoLandmarks(window.faustNode);
@@ -279,6 +287,35 @@
             .join("\n\n");
         }
         debugDiv.textContent = debugText;
+      };
+
+      const showBlendshapesDebugText = (blendShapes) => {
+        if (!blendShapes || blendShapes.length === 0) {
+          debugDiv.textContent = "No face detected";
+          return;
+        }
+
+        let categories = blendShapes[0].categories;
+
+        const debugText = Object.entries(categories)
+          .map(([label, item]) => {
+            // console.log(item);
+
+            let categoryName = item.categoryName;
+            let value = item.score;
+
+            return `
+              <div style="margin: 0px; padding: 0px; height: 15px; width: 100px;">
+                <span style="display: inline-block; height: 0px; width: 15px; padding: 0px; margin: 0px; left: 0px; text-align: left; color: white;">
+                  ${categoryName}:${value.toFixed(2)}
+                  </span>
+                <progress value="${value}" max="1" style="width: 100px; height: 10px; top: -3px; position: relative; padding: 0px; margin: 0px;"></progress>
+              </div>
+            `;
+          })
+          .join("");
+
+        debugDiv.innerHTML = debugText;
       };
 
       function formatLandmarks(landmarks, handIndex) {
@@ -419,32 +456,34 @@
           numFaces: 1,
         }
       );
-      // demosSection.classList.remove("invisible");
 
       // console.log(faceLandmarker.detectForVideo(videoElement, Date.now()));
 
-      // if (webcamRunning === true) {
-      // window.requestAnimationFrame(onResults);
-      // }
+      const rescaleYPoint = (point) => {
+        return {
+          x: point.x,
+          y: 1 - point.y,
+          z: point.z || 0,
+        };
+      };
 
       // Add face mesh results handler
       const onResults = (results) => {
-        // console.log("onResults", results);
-
         const objectsToRemove = in_scene.children.filter(
           (child) => child !== plane
         );
         objectsToRemove.forEach((object) => in_scene.remove(object));
 
         if (results.faceLandmarks) {
+          // console.log(results);
+
+          showBlendshapesDebugText(results.faceBlendshapes);
+
+          // TODO: update debug text function for blend shapes
+          // to resemble https://codepen.io/mediapipe-preview/pen/OJBVQJm?editors=1010
           updateFaustParamsForLandmarks(window.faustNode);
           for (const landmarks of results.faceLandmarks) {
             // You can add face mesh visualization here similar to hand landmarks
-
-            // console.log(
-            //   landmarks[FACE_LANDMARKS.NOSE].z * aspectRatio,
-            //   "init NOSE"
-            // );
 
             const transformedLandmarks = landmarks.map((landmark) => ({
               x: (landmark.x - 0.5) * pointScaler.x + 0.5,
@@ -453,7 +492,6 @@
             }));
 
             window.lastFaceLandmarks = transformedLandmarks;
-            let rightEyePoints = [];
 
             for (let i = 0; i < EYE_POINTS.RIGHT_EYE.length; i++) {
               let x = landmarks[EYE_POINTS.RIGHT_EYE[i]].x,
@@ -475,8 +513,15 @@
               );
             }
 
+            let leftIris = rescaleYPoint(landmarks[FACE_LANDMARKS.LEFT_IRIS]);
+
+            let rightIris = rescaleYPoint(landmarks[FACE_LANDMARKS.RIGHT_IRIS]);
+
             window.lastRightEyeLandmarks = rightEyePoints;
             window.lastLeftEyeLandmarks = leftEyePoints;
+
+            window.lastLeftIrisLandmark = leftIris;
+            window.lastRightIrisLandmark = rightIris;
 
             const noseLandmark = landmarks[FACE_LANDMARKS.NOSE]; // Replace NOSE_INDEX with the correct index for the nose
             const transformedNose = new THREE.Vector3(
@@ -485,12 +530,13 @@
               noseLandmark.z * aspectRatio || 0 // for some dubm fucking reason z scales with aspect ratio
             );
 
-            // console.log(transformedNose.z / aspectRatio, "NOSE");
-
             window.lastNoseLandmark = transformedNose;
-            // console.log("NOSE", transformedNose.z);
 
             updateFaustParams(window.faustNode, landmarks); // Keep original landmarks for Faust params
+            updateFaustParamsBlendshapes(
+              window.faustNode,
+              results.faceBlendshapes
+            );
 
             if (RENDER_LANDMARKS) {
               const referencePoints = [
@@ -520,16 +566,47 @@
                 radius: 4,
               });
 
-              drawLandmarks(in_scene, [leftEyePoints, rightEyePoints], {
-                color: 0x00ff00,
-                radius: 4,
-              });
+              // drawLandmarks(
+              //   in_scene,
+              //   [
+              //     transformedLandmarks[FACE_LANDMARKS.RIGHT_IRIS],
+              //     transformedLandmarks[FACE_LANDMARKS.LEFT_IRIS],
+              //   ],
+              //   {
+              //     color: 0x00ff00,
+              //     radius: 2,
+              //   }
+              // );
 
-              drawLandmarks(in_scene, transformedLandmarks, {
-                color: 0x0000ff,
-                lineWidth: 1,
-                radius: 1,
-              });
+              drawLandmarks(
+                in_scene,
+                [
+                  transformedLandmarks[FACE_LANDMARKS.LEFT_IRIS_BOUNDS[0]],
+                  transformedLandmarks[FACE_LANDMARKS.LEFT_IRIS_BOUNDS[1]],
+                  transformedLandmarks[FACE_LANDMARKS.LEFT_IRIS_BOUNDS[2]],
+                  transformedLandmarks[FACE_LANDMARKS.LEFT_IRIS_BOUNDS[3]],
+                ],
+                {
+                  color: 0x0000ff,
+                  radius: 2,
+                }
+              );
+
+              drawLandmarks(
+                in_scene,
+                [
+                  transformedLandmarks[FACE_LANDMARKS.RIGHT_IRIS_BOUNDS[0]],
+                  transformedLandmarks[FACE_LANDMARKS.RIGHT_IRIS_BOUNDS[1]],
+                  transformedLandmarks[FACE_LANDMARKS.RIGHT_IRIS_BOUNDS[2]],
+                  transformedLandmarks[FACE_LANDMARKS.RIGHT_IRIS_BOUNDS[3]],
+                ],
+                {
+                  color: 0xff0000,
+                  radius: 2,
+                }
+              );
+
+              //
             }
 
             // console.log(landmarks);

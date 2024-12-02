@@ -7,7 +7,7 @@ import("bindings.dsp");
 // Final frequency calculation with arpeggiator
 // f = (base_freq + arp_offset) : ba.midikey2hz;
 
-f = nose_x : it.remap(0, 1, 24, 24+8) : floor(_): ba.midikey2hz(_); 
+f = eyelookin_left : it.remap(0, 1, 24, 24+8) : floor(_): ba.midikey2hz(_); 
 
 // g = hslider("[01]gain",1,0,1,0.01);
 g = nose_z : it.remap(0.07, 0.3, 0, 1) * 0.7;

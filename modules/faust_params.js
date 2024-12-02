@@ -200,18 +200,18 @@ const FACE_FAUST_PARAMS = {
             faustNode.setParamValue("/hand_synth/nose_z", value.z)
         }
     },
-    [FACE_LANDMARKS.LEFT_EYE]: (faustNode, value) => {
+    [FACE_LANDMARKS.LEFT_IRIS]: (faustNode, value) => {
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/left_eye_x", value.x)
-            faustNode.setParamValue("/hand_synth/left_eye_y", value.y)
-            faustNode.setParamValue("/hand_synth/left_eye_z", value.z)
+            faustNode.setParamValue("/hand_synth/left_iris_x", value.x)
+            faustNode.setParamValue("/hand_synth/left_iris_y", value.y)
+            faustNode.setParamValue("/hand_synth/left_iris_z", value.z)
         }
     },
-    [FACE_LANDMARKS.RIGHT_EYE]: (faustNode, value) => {
+    [FACE_LANDMARKS.RIGHT_IRIS]: (faustNode, value) => {
         if (faustNode) {
-            faustNode.setParamValue("/hand_synth/right_eye_x", value.x)
-            faustNode.setParamValue("/hand_synth/right_eye_y", value.y)
-            faustNode.setParamValue("/hand_synth/right_eye_z", value.z)
+            faustNode.setParamValue("/hand_synth/right_iris_x", value.x)
+            faustNode.setParamValue("/hand_synth/right_iris_y", value.y)
+            faustNode.setParamValue("/hand_synth/right_iris_z", value.z)
         }
     },
     [FACE_LANDMARKS.LEFT_CHEEK]: (faustNode, value) => {
@@ -231,6 +231,248 @@ const FACE_FAUST_PARAMS = {
 }
 
 
+const BLENDSHAPE_FAUST_PARAMS = {
+    [BLENDSHAPE_CATEGORIES._NEUTRAL]: (faustNode, value) => { },
+    [BLENDSHAPE_CATEGORIES.BROWDOWNLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/browdown_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.BROWDOWNRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/browouterup_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.CHEEKPUFF]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/cheek_puff", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.CHEEKSQUINTLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/cheek_squint_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYEBLINKLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyeblink_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYEBLINKRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyeblink_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKDOWNLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookdown_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKDOWNRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookdown_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKINLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            console.log(value);
+            faustNode.setParamValue("/hand_synth/eyelookin_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKINRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookin_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKOUTLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookout_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKOUTRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookout_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKUPLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookup_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYELOOKUPRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyelookup_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYESQUINTLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyesquint_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYESQUINTRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyesquint_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYEWIDELEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyewide_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.EYEWIDERIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/eyewide_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.JAWFORWARD]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/jaw_forward", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.JAWLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/jaw_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.JAWMOPEN]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/jaw_open", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.JAWRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/jaw_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHCLOSE]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_close", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHDIMPLELEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_dimple_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHDIMPLERIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_dimple_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHFROWNLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_frown_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHFROWNRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_frown_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHFUNNEL]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_funnel", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHLOWERDOWNLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_lower_down_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHLOWERDOWNRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_lower_down_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHPRESSLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_press_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHPRESSRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_press_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHPUCKER]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_pucker", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHROLLLOWER]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_roll_lower", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHROLLUPPER]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_roll_upper", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHSHRUGLOWER]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_shrug_lower", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHSHRUGUPPER]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_shrug_upper", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHSMILELEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_smile_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHSMILERIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_smile_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHSTRETCHLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_stretch_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHSTRETCHRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_stretch_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHUPPERUPLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_upper_up_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.MOUTHUPPERUPRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/mouth_upper_up_right", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.NOSESNEERLEFT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/nose_sneer_left", value)
+        }
+    },
+    [BLENDSHAPE_CATEGORIES.NOSESNEERRIGHT]: (faustNode, value) => {
+        if (faustNode) {
+            faustNode.setParamValue("/hand_synth/nose_sneer_right", value)
+        }
+    }
+
+}
+
+
 
 
 
@@ -238,18 +480,29 @@ const FACE_FAUST_PARAMS = {
 const FAUST_PARAMS = {
     ...HAND_FAUST_PARAMS,
     ...FACE_FAUST_PARAMS,
+    ...BLENDSHAPE_FAUST_PARAMS,
 }
 
 const updateFaustParams = (faustNode, landmarks) => {
     let i = 0;
     for (const landmark of landmarks) {
-        let updateFunc = FAUST_PARAMS[i];
+        let updateFunc = FACE_FAUST_PARAMS[i];
         if (updateFunc instanceof Function) {
             updateFunc(faustNode, landmark);
         }
         ++i;
     }
 };
+
+const updateFaustParamsBlendshapes = (faustNode, blendShapes) => {
+    let categories = blendShapes[0].categories;
+    for (const item of categories) {
+        let updateFunc = BLENDSHAPE_FAUST_PARAMS[item.index];
+        if (updateFunc instanceof Function) {
+            updateFunc(faustNode, item.score);
+        }
+    }
+}
 
 const updateFaustParamsNoLandmarks = (faustNode) => {
     if (faustNode) {
@@ -262,4 +515,8 @@ const updateFaustParamsForLandmarks = (faustNode) => {
     if (faustNode) {
         faustNode.setParamValue("/hand_synth/gate", 1)
     }
-};  
+};
+
+
+
+
