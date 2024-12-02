@@ -255,6 +255,7 @@ const BLENDSHAPE_FAUST_PARAMS = {
     },
     [BLENDSHAPE_CATEGORIES.EYEBLINKLEFT]: (faustNode, value) => {
         if (faustNode) {
+            console.log("EYEBLINKLEFT", value);
             faustNode.setParamValue("/hand_synth/eyeblink_left", value)
         }
     },

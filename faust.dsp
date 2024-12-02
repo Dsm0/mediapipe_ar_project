@@ -11,7 +11,9 @@ f = (eyelookin_left*0.5 + 0.5 - eyelookout_left*0.5) : it.remap(0, 1, 24, 24+16)
 
 // g = hslider("[01]gain",1,0,1,0.01);
 g = abs(nose_z) : it.remap(0.04, 0.3, 0, 1) * 0.3;
-t = button("[10]gate") : si.smoo;
+
+blink = (eyeblink_left+eyeblink_right);
+t = button("[10]gate") : _ - blink : si.smoo;
 // t = 1 : si.smoo;
 
 // p8 = hslider("[03]gain 8ve partial",1,0,1,0.01);

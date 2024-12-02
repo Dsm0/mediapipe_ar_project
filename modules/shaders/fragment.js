@@ -16,7 +16,7 @@ uniform vec3 facePoints[15];
 uniform float time;
 uniform vec3 nosePosition;
 
-
+bool invert = false;
 
 // some functiomns shamelessly stolen from https://github.com/MaxBittker/shaderbooth/blob/0c48cf148479fc095a582fd63a705375841ae6cd/src/prefix.glsl#L393
 // big ups Max Bittker
@@ -129,19 +129,19 @@ vec4 getPrevious(vec2 uv) {
   return texture2D(tPrevious, uv);
 }
 
-vec4 createEchoEffect(vec2 uv, vec4 currentFrame) {
+vec4 createEchoEffect(vec2 uv, vec2 offset,vec4 currentFrame,float factor) {
   // Create offset coordinates for echo trail
-  vec2 echo_offset = (uv - 0.5) * 0.01;
+  vec2 echo_offset = (uv - 0.5) * offset;
 
   // Sample the previous frame with offset
-  vec4 echo = getPrevious(uv + echo_offset);
+  vec4 echo = getPrevious(uv);
 
   // Mix current frame with echo
   // Adjust these values to control echo intensity and decay
-  float echo_strength = 0.5; // Echo persistence (0-1)
-  float current_strength = 0.95; // Current frame intensity
+  float echo_strength = 0.9; // Echo persistence (0-1)
+  float current_strength = 1.0; // Current frame intensity
 
-  return mix(currentFrame * current_strength, echo, echo_strength);
+  return currentFrame * current_strength + echo * echo_strength;
 }
 
 vec4 filterWhite(vec4 point) {
@@ -165,15 +165,60 @@ vec4 applyChromaticAberration(vec2 uv, float intensity) {
     return vec4(r, g, b, 1.0);
 }
 
+// https://www.flong.com/archive/texts/code/shapers_poly/
+float doubleOddPolynomialSeat (float x, float a, float b, float n){
+  float epsilon = 0.00001;
+  float min_param_a = 0.0 + epsilon;
+  float max_param_a = 1.0 - epsilon;
+  float min_param_b = 0.0;
+  float max_param_b = 1.0;
+  a = min(max_param_a, max(min_param_a, a));  
+  b = min(max_param_b, max(min_param_b, b)); 
+
+  float p = 2.0*n + 1.0;
+  float y = 0.0;
+  if (x <= a){
+    y = b - b*pow(1.0-x/a, p);
+  } else {
+    y = b + (1.0-b)*pow((x-a)/(1.0-a), p);
+  }
+  return y;
+}
+
+vec4 drawPoint(vec2 uv, vec2 center, float radius, vec4 color) {
+    if (distance(uv, center) < radius) {
+        return color;
+    }
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
+    vec2 startingUV = uv;
 
-    bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < 0.004;
-    bool inLeftEyeRegion = distanceFromEdge(uv, leftEyePoints) < 0.004;
+    float eyeScale = 1.0;
+    uv = (uv - 0.5) * eyeScale + 0.5;
+
+    // uv.y -= 0.2;
+
+    vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
+
+    float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0) + 0.2;
+    float mixFactor = doubleOddPolynomialSeat(noseFactor, 0.7, 0.003, 8.0);
+
+
+    if(mixFactor > 1.2) {
+      uv = min((startingUV - 0.5) * 1.0 + 0.5, uv);
+    } else {
+      renderTex = renderTex ;
+    }
+
+
+    bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < mixFactor*0.1;
+    bool inLeftEyeRegion = distanceFromEdge(uv, leftEyePoints) < mixFactor*0.1;
     bool inEyeRegion = inRightEyeRegion || inLeftEyeRegion;
 
-    vec2 videoUV = (uv - 0.5) * 1.28 + 0.5;
-    videoUV.y = (videoUV.y - 0.5) * 1.1 + 0.5;
     vec4 videoTex = texture2D(tVideo, uv);
 
     vec4 tex = texture2D(tDiffuse,uv);
@@ -181,9 +226,9 @@ void main() {
 
     vec4 prevTex = texture2D(tPrevious, uv);
 
-    vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
+    float ff = pow(2.0,2.0);
 
-    float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0);
+
 
     vec2 pixel = 1.0 / resolution;
 
@@ -192,7 +237,6 @@ void main() {
       float wmag = luma(wcolor);
       wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
 
-      int n = 5;
       float factor = 20.0;
       float uB = luma(getPrevious(uv + pixel * vec2(0., factor)).rgb);
       float dB = luma(getPrevious(uv + pixel * vec2(0, -factor)).rgb);
@@ -210,7 +254,7 @@ void main() {
         color = scolor;
       }
 
-      renderTex = mix(videoTex, vec4(color, 1.0), noseFactor);
+      renderTex = mix(videoTex, vec4(color, 1.0), mixFactor);
     }
 
     // Draw white dot at left iris position
@@ -226,12 +270,6 @@ void main() {
 
 
 
-
-    // renderTex = createEchoEffect(uv, renderTex);
-
-    // Apply chromatic aberration to the final render texture
-
-
-    gl_FragColor = renderTex;
+    gl_FragColor = renderTex * 0.9;
 }
 `
