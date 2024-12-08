@@ -114,9 +114,9 @@ chord = (wfosc(f + offset)
 
 tooth = os.sawtooth(f*8) : _ * (blink_factor*2.5);
 
-organ = (chord*2.0 + tooth*1.0)*g*t : filter <: r;
+organ = (chord*2.0 + tooth*1.0)*g*t : filter : _ <: r;
 
-filter = fi.resonbp(f*8 + , 0.8 + g*2.0, 1);
+filter = fi.resonbp(f*8 , 0.8 + g*2.0, 1);
 
 
 echo_time = max(800 - noseFactor*700,0.01);

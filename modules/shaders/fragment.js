@@ -260,10 +260,6 @@ vec4 plotFunction(vec2 uv, vec2 range, float xPos) {
 }
 
 
-vec2 scalePoint(vec2 uv, float scale) {
-  vec2 newUV = vec2(1.0 - uv.x, uv.y);
-  return (newUV - 0.5) * scale + 0.5;
-}
 
 // Classic Perlin noise function
 vec3 mod289(vec3 x) {
@@ -370,15 +366,99 @@ vec3 perlinNoiseTexture(vec2 uv, float time) {
 
 
 
+// Draws a line between two points with a given thickness
+float drawLine(vec2 uv, vec2 p1, vec2 p2, float thickness) {
+    // Convert line segment to vector
+    vec2 lineVec = p2 - p1;
+    
+    // Get vector from point 1 to current UV coord
+    vec2 pointVec = uv - p1;
+    
+    // Project point vector onto line vector
+    float t = dot(pointVec, lineVec) / dot(lineVec, lineVec);
+    t = clamp(t, 0.0, 1.0);
+    
+    // Get closest point on line segment
+    vec2 projection = p1 + t * lineVec;
+    
+    // Get distance from UV to closest point
+    float dist = length(uv - projection);
+    
+    // Return 1.0 if within thickness, 0.0 otherwise
+    return 1.0 - smoothstep(thickness * 0.5 - 0.001, thickness * 0.5 + 0.001, dist);
+}
 
 
+// Returns a random value between 0 and 1 based on a 2D position
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+}
+
+// Draws lines moving outward from center
+float drawMovingPoints(vec2 uv, vec2 center, float time, float size, float distance, float startDistance) {
+    float lines = 0.0;
+    float numLines = 20.0;
+    
+
+    float randVal = random(vec2(time, 0.0));
+
+    float randy = random(vec2(time, 0.0));
+    
+    // For each line
+    for(float i = 0.0; i < numLines; i++) {
+        // Get random angle and speed for this line
+        float angle = random(vec2(i, randy)) * 6.28;
+        float speed = random(vec2(i, randy)) * 1.0 + 0.2;
+
+        // Start position at distance d=0.2 from center
+        float startDist = 0.2 + random(vec2(i, 2.0)) * 0.3 * startDistance;
+        vec2 startPos = center + vec2(cos(angle), sin(angle)) * startDist;
+        
+        // Calculate end position based on time, starting from startDist
+        float dist = startDist + mod(time * speed, 1.0 - startDist);
+        vec2 endPos = center + vec2(cos(angle), sin(angle)) * dist * distance;
+        
+        // Draw line from start position to end position
+        float thickness = (1.0 - (dist - startDist)/(1.0 - startDist)) * 0.002; // Line gets thinner as it moves out
+        float line = drawLine(uv, startPos, endPos, thickness);
+        
+        lines = max(lines, line);
+    }
+    
+    return lines;
+}
+
+// Applies barrel distortion to UV coordinates
+vec2 barrelDistort(vec2 uv, float strength) {
+    vec2 center = vec2(0.5);
+    vec2 coord = uv - center;
+    
+    float dist = length(coord);
+    float distPow = pow(dist, 2.0);
+    
+    // Quadratic distortion formula
+    float f = 1.0 + distPow * strength;
+    
+    // Apply distortion
+    vec2 distortedCoord = coord * f;
+    return distortedCoord + center;
+}
+
+
+
+vec2 warpPoint(vec2 uv, vec2 center, float scale, float mixFactor) {
+  vec2 newUV = vec2(1.0 - uv.x, uv.y);
+  newUV = (newUV - 0.5) * scale + 0.5;
+  vec2 huh = (newUV - 0.5) * vec2(pow(center.x, 2.0), pow(center.y, 2.0)) + 0.5;
+  vec2 ahhh = barrelDistort(huh, -1.0 * mixFactor * 0.125);
+  return ahhh;
+}
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
-    float eyeScale = 1.6;
-    uv = scalePoint(uv, eyeScale);
     // uv.y -= 0.2;
+
 
     vec2 startingUV = uv;
 
@@ -386,12 +466,21 @@ void main() {
 
     vec4 renderTex = vec4(0.0, 0.0, 0.0, 0.0);
 
+    // Get midpoint between left and right iris
+    vec2 centerIrisPoint = vec2(
+        (leftIris.x + rightIris.x) * 0.5,
+        (leftIris.y + rightIris.y) * 0.5
+    );
+
+    centerIrisPoint.y = sin(centerIrisPoint.y * 1.0);
+
 
     float mixFactor = noseFactor;
 
-
     float mixFactorEyes = min(mixFactor*0.1, 0.04);
 
+    float eyeScale = 5.1 + mixFactorEyes*0.4;
+    uv = warpPoint(uv, centerIrisPoint, eyeScale, mixFactorEyes);
 
     bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < mixFactorEyes;
     bool inLeftEyeRegion = distanceFromEdge(uv, leftEyePoints) < mixFactorEyes;
@@ -407,12 +496,26 @@ void main() {
 
     vec2 pixel = 1.0 / resolution;
 
+    vec4 lineTex = vec4(0.0, 0.0, 0.0, 0.0);
+
+    if(drawMovingPoints(uv, leftIris.xy,time,0.001, 2.0,16.0) > 0.0) {
+      lineTex = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    if(drawMovingPoints(uv, rightIris.xy,time,0.001, 2.0,8.0) > 0.0) {
+      lineTex = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+
+
+
+    vec4 renderWithLines = renderTex + lineTex; 
+    renderTex = mix(renderTex, renderWithLines, mixFactor*0.4);
+
     if(inEyeRegion) {
       vec3 wcolor = renderTex.rgb;
       float wmag = luma(wcolor);
       wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
 
-      vec2 prevUV = scalePoint(uv, 1.0/eyeScale);
+      vec2 prevUV = warpPoint(uv, centerIrisPoint, 1.0/eyeScale, mixFactorEyes);
 
       float factor = 20.0;
       float uB = luma(getPrevious(prevUV + pixel * vec2(0., factor)).rgb);
@@ -433,8 +536,8 @@ void main() {
         color = scolor;
       }
 
-      renderTex = mix(vec4(videoColor, 1.0), vec4(color, 1.0), 0.9);
-      renderTex *= 0.15 + mixFactor;
+      renderTex = mix(vec4(videoColor, 1.0), vec4(color, 1.0), mixFactorEyes*5.0 + 0.8);
+      renderTex *= min(0.15 + mixFactor, 1.0);
       // interesting shit happens when mixFactor is very high
     } else {
       renderTex = mix(getVideo(uv), renderTex, (mixFactor*1.2)+0.7);
@@ -465,6 +568,13 @@ void main() {
       renderTex = mix(renderTex, vec4(1.0, 1.0, 1.0, 1.0), eyeBlink.x+0.4);
     }
 
+    // if(drawLine(uv, vec2(0.2, 0.2), vec2(0.8, 0.8), 0.001) > 0.0) {
+    //   renderTex = vec4(1.0, 1.0, 1.0, 1.0);
+    // }
+
+
+
+    // renderTex = renderWithLines;
 
     gl_FragColor = renderTex * 0.9;
 }
