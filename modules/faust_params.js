@@ -480,7 +480,7 @@ const UNIQUE_FAUST_PARAMS = {
     [UNIQUE_CATEGORIES.NOSEFACTOR]: (faustNode, value) => {
         if (faustNode) {
             value = value.value.clamp(0, 100);
-            console.log(value);
+            // console.log(value);
 
             faustNode.setParamValue("/hand_synth/noseFactor", value)
         }

@@ -132,8 +132,10 @@ browouterup_right = hslider("browouterup_right", 0, 0, 1, 0.01) : smoothingFunc;
 cheek_puff = hslider("cheek_puff", 0, 0, 1, 0.01) : smoothingFunc;
 cheek_squint_left = hslider("cheek_squint_left", 0, 0, 1, 0.01) : smoothingFunc;
 cheek_squint_right = hslider("cheek_squint_right", 0, 0, 1, 0.01) : smoothingFunc;
+
 eyeblink_left = hslider("eyeblink_left", 0, 0, 1, 0.01) : smoothingFunc;
 eyeblink_right = hslider("eyeblink_right", 0, 0, 1, 0.01) : smoothingFunc;
+
 eyelookdown_left = hslider("eyelookdown_left", 0, 0, 1, 0.01) : smoothingFunc;
 eyelookdown_right = hslider("eyelookdown_right", 0, 0, 1, 0.01) : smoothingFunc;
 eyelookin_left = hslider("eyelookin_left", 0, 0, 1, 0.01) : smoothingFunc;

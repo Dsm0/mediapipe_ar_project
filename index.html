@@ -140,6 +140,8 @@
         leftEyePoints: { value: leftEyePoints },
         rightEyePoints: { value: rightEyePoints },
 
+        eyeBlink: { value: new THREE.Vector2(0, 0) },
+
         leftIris: { value: new THREE.Vector3(0, 0, 0) },
         rightIris: { value: new THREE.Vector3(0, 0, 0) },
 
@@ -246,6 +248,8 @@
 
           planeMaterial.uniforms.leftIris.value = window.lastLeftIrisLandmark;
           planeMaterial.uniforms.rightIris.value = window.lastRightIrisLandmark;
+
+          planeMaterial.uniforms.eyeBlink.value = window.lastEyeBlink;
 
           // float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0) + 0.0;
           // TODO: do scaling + calculations for this outside of faust + glsl
@@ -536,6 +540,13 @@
             window.lastLeftIrisLandmark = leftIris;
             window.lastRightIrisLandmark = rightIris;
 
+            let blendshapes = results.faceBlendshapes[0].categories;
+
+            window.lastEyeBlink = new THREE.Vector2(
+              blendshapes[BLENDSHAPE_CATEGORIES.EYEBLINKLEFT].score,
+              blendshapes[BLENDSHAPE_CATEGORIES.EYEBLINKRIGHT].score
+            );
+
             const noseLandmark = landmarks[FACE_LANDMARKS.NOSE]; // Replace NOSE_INDEX with the correct index for the nose
             const transformedNose = new THREE.Vector3(
               (noseLandmark.x - 0.5) * pointScaler.x + 0.5,
@@ -550,7 +561,7 @@
               0.0,
               1.0
             );
-            noseFactor = doubleOddPolynomialSeat(noseFactor, 0.7, 0.003, 8.0);
+            noseFactor = doubleCubicSeat(noseFactor, 0.4, 0.08);
             window.lastNoseFactor = noseFactor;
             // console.log(noseFactor);
 
