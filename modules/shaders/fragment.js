@@ -907,11 +907,11 @@ void main() {
 
     vec2 pointFromList = textPoints[int(floor(time * 15.0)) % 50];
 
+
+
+    float txtMixFactor = (1.0 - (noseFactor*0.8));
+
     vec2 randomUV = vec2(random(uv), random(uv + vec2(1.0, 0.0)));
-
-
-    float txtMixFactor = (exp(noseFactor*1.0)-1.0);
-
     vec2 randomMix = mix(vec2(0.5, 0.5), randomUV, min(0.0, txtMixFactor));
 
     float txt = lookCloselyTxt(scaleUV(uv, randomMix, 8.0));

@@ -14,7 +14,7 @@ f = ba.midikey2hz(6)
 
 blink_factor = (eyeblink_left+eyeblink_right)/2.0;
 
-blink_factor_env = en.ar(0.01,0.4,blink_factor-0.5);
+blink_factor_env = en.ar(0.01,0.02,blink_factor-0.5);
 
 g = noseFactor : min(1) : max(0) : (_ - blink_factor)*0.15;
 
@@ -113,14 +113,17 @@ distortion_offset = 0;
 organ = (chord*2.0 + tooth*1.0)*g*t 
 : filter 
 : ef.cubicnl(distortion_drive,distortion_offset)
-: fi.fb_comb(8,3,noseFactor*10,0.9)
-: _ <: r;
+: fi.fb_comb(8,3,noseFactor*f,0.9)
+: ef.echo(echo_time,echo_feedback,echo_damping)
+: ve.sallenKeyOnePoleLPF(min(max((1.0 - noseFactor + eyelookdown_right) + blink_factor_env*2.0,0.01),0.99))
+: _ <: r ;
 
-filter = fi.resonbp(f*8 + eyelookup_right*100, 0.8 + browinnerup*2.0 + blink_factor_env*10, 1);
+filter = fi.resonbp(f*8 + eyelookup_right*100, 0.8 + blink_factor_env*10, 1);
 
 
-echo_time = max( noseFactor + (os.triangle(20) : it.remap(-1,1,1,0.4)),0.01);
-echo_feedback = 0.9;
+// echo_time = max( noseFactor + (os.triangle(0.2) : it.remap(-1,1,1,0.8)),0.01);
+echo_time = max(noseFactor + (os.triangle(blink_factor_env) : it.remap(-1,1,0.0,0.8)),0.01);
+echo_feedback = min(0.9,(noseFactor : it.remap(0,1,0.15,0.9)));
 echo_damping = 0.8;
 
 multiecho = vgroup("stereo echo", multi(ef.echo(echo_time,echo_feedback,echo_damping), 2))
@@ -129,4 +132,4 @@ multiecho = vgroup("stereo echo", multi(ef.echo(echo_time,echo_feedback,echo_dam
         multi(f,n) = f,multi(f,n-1);
     };
 
-preProc = organ <: _,_ : multiecho;
+preProc = organ;
