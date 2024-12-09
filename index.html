@@ -72,7 +72,13 @@
       document.body.appendChild(videoElement);
 
       const RENDER_LANDMARKS = false;
-      const DEBUG_BLENDSHAPES = true;
+      const DEBUG = true;
+
+      if (!DEBUG) {
+        videoElement.style.display = "none";
+      }
+
+      // const initial_texture = new THREE.TextureLoader().load("./circles.jpg");
       // const initial_texture = new THREE.TextureLoader().load("./circles.jpg");
 
       // Add these lines to create video texture and plane
@@ -491,7 +497,7 @@
         if (results.faceLandmarks) {
           // console.log(results);
 
-          if (DEBUG_BLENDSHAPES) {
+          if (DEBUG) {
             showBlendshapesDebugText(results.faceBlendshapes);
           }
 

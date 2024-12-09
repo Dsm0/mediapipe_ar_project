@@ -66,6 +66,7 @@ vec3 hsl2rgb(vec3 hsl) {
 }
 
 
+
 float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
@@ -122,7 +123,18 @@ float distanceFromEdge(vec2 point, vec3 polygon[15]) {
 }
 
 
-
+vec2 textPoints[50] = vec2[50](
+    vec2(0.12, 0.34), vec2(0.45, 0.67), vec2(0.89, 0.23), vec2(0.56, 0.78), vec2(0.34, 0.90),
+    vec2(0.67, 0.12), vec2(0.23, 0.45), vec2(0.78, 0.89), vec2(0.90, 0.56), vec2(0.12, 0.78),
+    vec2(0.45, 0.90), vec2(0.89, 0.12), vec2(0.56, 0.45), vec2(0.34, 0.67), vec2(0.67, 0.89),
+    vec2(0.23, 0.56), vec2(0.78, 0.34), vec2(0.90, 0.67), vec2(0.12, 0.89), vec2(0.45, 0.23),
+    vec2(0.89, 0.56), vec2(0.56, 0.34), vec2(0.34, 0.78), vec2(0.67, 0.90), vec2(0.23, 0.12),
+    vec2(0.78, 0.45), vec2(0.90, 0.89), vec2(0.12, 0.56), vec2(0.45, 0.34), vec2(0.89, 0.67),
+    vec2(0.56, 0.90), vec2(0.34, 0.23), vec2(0.67, 0.45), vec2(0.23, 0.89), vec2(0.78, 0.56),
+    vec2(0.90, 0.34), vec2(0.12, 0.67), vec2(0.45, 0.78), vec2(0.89, 0.90), vec2(0.56, 0.12),
+    vec2(0.34, 0.45), vec2(0.67, 0.67), vec2(0.23, 0.34), vec2(0.78, 0.78), vec2(0.90, 0.23),
+    vec2(0.12, 0.45), vec2(0.45, 0.89), vec2(0.89, 0.34), vec2(0.56, 0.67), vec2(0.34, 0.12)
+);
 
 
 
@@ -621,7 +633,6 @@ float textTxt( in vec2 uv ) {
 
 float lookCloselyTxt( in vec2 uv) {
 
-
     // Set a general character size...
     vec2 charSize = vec2(.02, .0370);
     // and a starting position.
@@ -641,6 +652,32 @@ float lookCloselyTxt( in vec2 uv) {
     chr += drawChar( CH_E, charPos, charSize, uv); charPos.x += .04;
     chr += drawChar( CH_L, charPos, charSize, uv); charPos.x += .04;
     chr += drawChar( CH_Y, charPos, charSize, uv); charPos.x += .04;
+    return chr;
+}
+
+float eyesOpenWideTxt( in vec2 uv) {
+
+    // Set a general character size...
+    vec2 charSize = vec2(.02, .0370);
+    // and a starting position.
+    vec2 charPos = vec2(0.3, 0.5);
+    // Draw some text!
+    float chr = 0.0;
+    // Bitmap text rendering!
+    chr += drawChar( CH_E, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_Y, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_E, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_S, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_BLNK, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_O, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_P, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_E, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_N, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_BLNK, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_W, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_I, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_D, charPos, charSize, uv); charPos.x += .04;
+    chr += drawChar( CH_E, charPos, charSize, uv); charPos.x += .04;
     return chr;
 }
 
@@ -750,7 +787,7 @@ vec2 warpPoint(vec2 uv, vec2 center, float scale, float mixFactor) {
   vec2 newUV = vec2(uv.x, uv.y);
   newUV = (newUV - 0.5) * scale + 0.5;
   // vec2 huh = (newUV - 0.5) * vec2(pow(center.x, 2.0), pow(center.y, 2.0)) + 0.5;
-  vec2 ahhh = newUV; // barrelDistort(huh, -1.0 * mixFactor * 0.125);
+  vec2 ahhh = newUV;
   return ahhh;
 }
 
@@ -779,7 +816,7 @@ void main() {
 
     float mixFactorEyes = min(mixFactor*0.1, 0.04);
 
-    float eyeScale = 0.9;
+    float eyeScale = 0.96;
     uv = warpPoint(uv, centerIrisPoint, eyeScale, mixFactorEyes);
 
     bool inRightEyeRegion = distanceFromEdge(uv, rightEyePoints) < mixFactorEyes;
@@ -798,21 +835,21 @@ void main() {
 
     vec4 lineTex = vec4(0.0, 0.0, 0.0, 0.0);
 
-    if(drawMovingPoints(uv, leftIris.xy,time,0.001, 2.0,16.0) > 0.0) {
-      lineTex = vec4(1.0, 1.0, 1.0, 1.0);
-    }
-    if(drawMovingPoints(uv, rightIris.xy,time,0.001, 2.0,8.0) > 0.0) {
-      lineTex = vec4(1.0, 1.0, 1.0, 1.0);
-    }
+    // if(drawMovingPoints(uv, leftIris.xy,time,0.001, 2.0,16.0) > 0.0) {
+    //   lineTex = vec4(1.0, 1.0, 1.0, 1.0);
+    // }
+    // if(drawMovingPoints(uv, rightIris.xy,time,0.001, 2.0,8.0) > 0.0) {
+    //   lineTex = vec4(1.0, 1.0, 1.0, 1.0);
+    // }
+    // vec4 renderWithLines = renderTex + lineTex; 
+    // renderTex = mix(renderTex, renderWithLines, mixFactor*0.4);
 
-
-
-    vec4 renderWithLines = renderTex + lineTex; 
-    renderTex = mix(renderTex, renderWithLines, mixFactor*0.4);
+    vec2 warpedUV2 = barrelDistort(scaleUV(uv, centerIrisPoint, 1.0/eyeScale), -2.2);
+    uv = mix(uv, warpedUV2, mixFactor*0.4);
 
     if(inEyeRegion) {
       vec3 wcolor = renderTex.rgb;
-      float wmag = luma(wcolor);
+      float wmag = luma(wcolor) * 2.0;
       wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
 
       vec2 prevUV = warpPoint(uv, centerIrisPoint, 1.0/eyeScale, mixFactorEyes);
@@ -868,22 +905,28 @@ void main() {
       renderTex = mix(renderTex, vec4(1.0, 1.0, 1.0, 1.0), eyeBlink.x+0.4);
     }
 
-    // if(drawLine(uv, vec2(0.2, 0.2), vec2(0.8, 0.8), 0.001) > 0.0) {
-    //   renderTex = vec4(1.0, 1.0, 1.0, 1.0);
-    // }
-
-
-
-    // renderTex = renderWithLines;
+    vec2 pointFromList = textPoints[int(floor(time * 15.0)) % 50];
 
     vec2 randomUV = vec2(random(uv), random(uv + vec2(1.0, 0.0)));
 
-    vec2 randomMix = mix(vec2(0.5, 0.5), randomUV, min(0.0, 1.0-(exp(noseFactor*1.0)-1.0)));
 
+    float txtMixFactor = (exp(noseFactor*1.0)-1.0);
+
+    vec2 randomMix = mix(vec2(0.5, 0.5), randomUV, min(0.0, txtMixFactor));
 
     float txt = lookCloselyTxt(scaleUV(uv, randomMix, 8.0));
+    float txt2 = eyesOpenWideTxt(scaleUV(uv + vec2(0.0,0.01), randomMix, 8.0));
+
+    txt += txt2;
+
+    float jumpingText = mix(0.0,txt,1.0-noseFactor*2.0);
+
+    vec4 movingPoint = drawPoint(uv, vec2(sin(time*0.1), 0.5), 0.01, vec4(1.0, 1.0, 1.0, 1.0));
     
     gl_FragColor = renderTex * 0.9;
     gl_FragColor += txt;
+    gl_FragColor += jumpingText;
+
+    // gl_FragColor += movingPoint;
 }
 `
