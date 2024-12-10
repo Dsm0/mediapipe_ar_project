@@ -71,12 +71,25 @@
       videoElement.classList.add("video-feed");
       document.body.appendChild(videoElement);
 
-      const RENDER_LANDMARKS = false;
-      const DEBUG = true;
+      let RENDER_LANDMARKS = false;
+      let DEBUG = true;
 
-      if (!DEBUG) {
-        videoElement.style.display = "none";
-      }
+      // Add keyboard event listener
+      document.addEventListener("keydown", (event) => {
+        switch (event.code) {
+          case "Space":
+            DEBUG = !DEBUG;
+            videoElement.style.display = DEBUG ? "block" : "none";
+            debugDiv.style.display = DEBUG ? "block" : "none";
+            break;
+          case "KeyC":
+            RENDER_LANDMARKS = !RENDER_LANDMARKS;
+            break;
+          default:
+            console.log(event.code);
+            break;
+        }
+      });
 
       // const initial_texture = new THREE.TextureLoader().load("./circles.jpg");
       // const initial_texture = new THREE.TextureLoader().load("./circles.jpg");
@@ -497,9 +510,9 @@
         if (results.faceLandmarks) {
           // console.log(results);
 
-          if (DEBUG) {
-            showBlendshapesDebugText(results.faceBlendshapes);
-          }
+          // if (DEBUG) {
+          showBlendshapesDebugText(results.faceBlendshapes);
+          // }
 
           // TODO: update debug text function for blend shapes
           // to resemble https://codepen.io/mediapipe-preview/pen/OJBVQJm?editors=1010
