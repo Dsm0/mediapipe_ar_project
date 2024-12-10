@@ -72,7 +72,7 @@
       document.body.appendChild(videoElement);
 
       const RENDER_LANDMARKS = false;
-      const DEBUG = false;
+      const DEBUG = true;
 
       if (!DEBUG) {
         videoElement.style.display = "none";
@@ -147,15 +147,14 @@
         rightEyePoints: { value: rightEyePoints },
 
         eyeBlink: { value: new THREE.Vector2(0, 0) },
-
         leftIris: { value: new THREE.Vector3(0, 0, 0) },
         rightIris: { value: new THREE.Vector3(0, 0, 0) },
+        noseFactor: { value: 0.0 },
 
         time: { value: 0.0 },
         resolution: {
           value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
-        noseFactor: { value: 0.0 },
       };
 
       const planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10);
@@ -247,6 +246,7 @@
           planeMaterial.uniforms.time.value = time;
           planeMaterial.uniforms.distortion.value = distortionValue;
           planeMaterial.uniforms.distortion2.value = distortionValue;
+
           planeMaterial.uniforms.rightEyePoints.value =
             window.lastRightEyeLandmarks;
           planeMaterial.uniforms.leftEyePoints.value =
@@ -254,7 +254,6 @@
 
           planeMaterial.uniforms.leftIris.value = window.lastLeftIrisLandmark;
           planeMaterial.uniforms.rightIris.value = window.lastRightIrisLandmark;
-
           planeMaterial.uniforms.eyeBlink.value = window.lastEyeBlink;
 
           // float noseFactor = map(abs(nosePosition.z), 0.04, 0.3, 0.0, 1.0) + 0.0;
@@ -264,6 +263,7 @@
           // why the fuck does the js style put each value on a new line
 
           planeMaterial.uniforms.noseFactor.value = window.lastNoseFactor;
+          // console.log(window.lastNoseFactor, window.lastEyeBlink);
 
           // console.log(
           //   Math.abs(window.lastNoseLandmark.z).remap(0.04, 0.3, 0.0, 1.0)
@@ -657,6 +657,17 @@
           }
         } else {
           updateFaustParamsNoLandmarks(window.faustNode);
+
+          console.log("NO LANDMARKS");
+
+          planeMaterial.uniforms.eyeBlink.value = new THREE.Vector2(0, 0);
+          planeMaterial.uniforms.leftIris.value = new THREE.Vector3(0, 0, 0);
+          planeMaterial.uniforms.rightIris.value = new THREE.Vector3(0, 0, 0);
+          planeMaterial.uniforms.noseFactor.value = 0.0;
+          // window.lastEyeBlink = new THREE.Vector2(0, 0);
+          // window.lastLeftIrisLandmark = new THREE.Vector3(0, 0, 0);
+          // window.lastRightIrisLandmark = new THREE.Vector3(0, 0, 0);
+          // window.lastNoseFactor = 0.0;
         }
       };
 

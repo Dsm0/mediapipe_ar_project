@@ -796,6 +796,7 @@ void main() {
 
     // uv.y -= 0.2;
 
+    uv.x = 1.0 - uv.x;
 
     vec2 startingUV = uv;
 
@@ -847,12 +848,16 @@ void main() {
     vec2 warpedUV2 = barrelDistort(scaleUV(uv, centerIrisPoint, 1.0/eyeScale), -2.2);
     uv = mix(uv, warpedUV2, mixFactor*0.4);
 
+    vec2 invertedUV = vec2(1.0 - uv.x, uv.y);
+
     if(inEyeRegion) {
       vec3 wcolor = renderTex.rgb;
       float wmag = luma(wcolor) * 2.0;
       wcolor = hsl2rgb((sin(time * 0.001) * 0.5) + 1.0, 0.2, wmag + 0.5);
 
       vec2 prevUV = warpPoint(uv, centerIrisPoint, 1.0/eyeScale, mixFactorEyes);
+
+      prevUV = vec2(1.0 - prevUV.x, prevUV.y);
 
       float factor = 20.0;
       float uB = luma(getPrevious(prevUV + pixel * vec2(0., factor)).rgb);
@@ -875,6 +880,9 @@ void main() {
 
       renderTex = mix(vec4(videoColor, 1.0), vec4(color, 1.0), 1.0);
       renderTex *= min(0.15 + mixFactor, 1.0);
+      if(mixFactor > 0.5) {
+        renderTex *= 2.0;
+      }
       // interesting shit happens when mixFactor is very high
     } else {
       renderTex = mix(getVideo(uv), renderTex, (mixFactor*1.2)+0.7);
@@ -900,8 +908,10 @@ void main() {
     }
 
 
+    float blinkFactor = (eyeBlink.x + eyeBlink.y)/2.0;
+
     // blink white
-    if((eyeBlink.x + eyeBlink.y)/2.0 >  0.5) {
+    if(blinkFactor >  0.45) {
       renderTex = mix(renderTex, vec4(1.0, 1.0, 1.0, 1.0), eyeBlink.x+0.4);
     }
 
@@ -909,13 +919,13 @@ void main() {
 
 
 
-    float txtMixFactor = (1.0 - (noseFactor*0.8));
+    float txtMixFactor = (1.0 - (noseFactor*2.2));
 
     vec2 randomUV = vec2(random(uv), random(uv + vec2(1.0, 0.0)));
     vec2 randomMix = mix(vec2(0.5, 0.5), randomUV, min(0.0, txtMixFactor));
 
-    float txt = lookCloselyTxt(scaleUV(uv, randomMix, 8.0));
-    float txt2 = eyesOpenWideTxt(scaleUV(uv + vec2(0.0,0.01), randomMix, 8.0));
+    float txt = lookCloselyTxt(scaleUV(invertedUV, randomMix, 8.0));
+    float txt2 = eyesOpenWideTxt(scaleUV(invertedUV + vec2(0.0,0.01), randomMix, 8.0));
 
     txt += txt2;
 
