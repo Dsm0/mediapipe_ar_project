@@ -69,10 +69,11 @@
       let scene, in_scene, camera, renderer;
       const videoElement = document.createElement("video");
       videoElement.classList.add("video-feed");
+      videoElement.style.display = "none";
       document.body.appendChild(videoElement);
 
       let RENDER_LANDMARKS = false;
-      let DEBUG = true;
+      let DEBUG = false;
 
       // Add keyboard event listener
       document.addEventListener("keydown", (event) => {
@@ -86,7 +87,7 @@
             RENDER_LANDMARKS = !RENDER_LANDMARKS;
             break;
           default:
-            console.log(event.code);
+            // console.log(event.code);
             break;
         }
       });
@@ -306,6 +307,7 @@
 
       const debugDiv = document.createElement("div");
       debugDiv.id = "debug-text";
+      debugDiv.style.display = "none";
       document.body.appendChild(debugDiv);
 
       const showDebugText = (results) => {

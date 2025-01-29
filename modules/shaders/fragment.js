@@ -879,11 +879,15 @@ void main() {
       }
 
       renderTex = mix(vec4(videoColor, 1.0), vec4(color, 1.0), 1.0);
-      renderTex *= min(0.15 + mixFactor, 1.0);
+      renderTex *= min(0.25 + mixFactor, 1.0);
+
       if(mixFactor > 0.5) {
         renderTex *= 2.0;
       }
+
+      // renderTex = max(renderTex, mix(getVideo(uv), renderTex, (mixFactor*1.2)+0.7));
       // interesting shit happens when mixFactor is very high
+
     } else {
       renderTex = mix(getVideo(uv), renderTex, (mixFactor*1.2)+0.7);
     }
