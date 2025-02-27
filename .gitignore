@@ -22,3 +22,6 @@ coverage/
 *.swp
 *.swo
 .DS_Store
+
+key.pem
+cert.pem
